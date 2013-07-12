@@ -1,0 +1,6 @@
+development: &DEV
+  host: http://localhost
+  port: 9200
+
+test:
+  <<: *DEV

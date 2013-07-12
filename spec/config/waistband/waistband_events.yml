@@ -1,0 +1,16 @@
+development: &DEV
+  name: events
+  stringify: true
+  settings:
+    number_of_shards: 9
+    number_of_replicas: 1
+  mappings:
+    event:
+      _source:
+        includes: ["*"]
+
+test:
+  <<: *DEV
+  name: events_test
+  settings:
+    number_of_shards: 4
