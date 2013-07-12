@@ -59,7 +59,7 @@ module Waistband
     end
 
     def query(term, options = {})
-      @query ||= Waistband::Query.new(@index_name, term, options)
+      Waistband::Query.new(@index_name, term, options)
     end
 
     private

@@ -3,6 +3,7 @@ require "waistband/version"
 module Waistband
   
   autoload :Configuration,  "waistband/configuration"
+  autoload :QueryResult,    "waistband/query_result"
   autoload :Query,          "waistband/query"
   autoload :Index,          "waistband/index"
 

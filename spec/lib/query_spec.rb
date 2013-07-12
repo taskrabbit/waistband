@@ -1,4 +1,9 @@
 require 'spec_helper'
+require 'active_support/core_ext/kernel/reporting'
+
+Kernel.silence_stderr do
+  require 'kaminari'
+end
 
 describe Waistband::Query do
 
@@ -8,12 +13,9 @@ describe Waistband::Query do
   describe '#execute!' do
 
     it "gets results from elastic search" do
-      index.store!("task_123123", {id: 123123, name: 'some shopping in ikea', user_id: 999, description: 'i need you to pick up some stuff in ikea'})
-      index.refresh
+      add_result!
 
-      query.add_field('name')
-
-      json = query.execute!
+      json = query.send(:execute!)
       json['hits'].should be_a Hash
       json['hits']['total'].should > 0
       json['hits']['hits'].size.should eql 1
@@ -83,7 +85,7 @@ describe Waistband::Query do
 
     it "builds an array of all terms" do
       query.add_term('metro', 'sf bay area')
-      query.terms.should eql([
+      query.send(:terms).should eql([
         {
           terms: {
             metro: ['sf', 'bay', 'area']
@@ -94,7 +96,7 @@ describe Waistband::Query do
 
     it "builds an array of single terms" do
       query.add_term('metro', 'boston')
-      query.terms.should eql([
+      query.send(:terms).should eql([
         {
           terms: {
             metro: ['boston']
@@ -106,7 +108,7 @@ describe Waistband::Query do
     it "constructs correctly with multiple terms" do
       query.add_term('metro', 'sf bay area')
       query.add_term('geography', 'San Francisco')
-      query.terms.should eql([
+      query.send(:terms).should eql([
         {
           terms: {
             metro: ["sf", "bay", "area"]}
@@ -126,7 +128,7 @@ describe Waistband::Query do
     it "creates an array of the must of the query" do
       query.add_term('metro', 'sf bay area')
       query.add_field('name')
-      query.must_to_hash.should eql([
+      query.send(:must_to_hash).should eql([
         {
           multi_match: {
             query: "shopping ikea",
@@ -146,19 +148,19 @@ describe Waistband::Query do
   describe '#from' do
 
     it "returns 0 when page is 1" do
-      Waistband::Query.new('search', 'shopping ikea', page: 1, page_size: 20).from.should eql 0
+      Waistband::Query.new('search', 'shopping ikea', page: 1, page_size: 20).send(:from).should eql 0
     end
 
     it "returns 19 when page is 2 and page_size is 20" do
-      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 20).from.should eql 19
+      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 20).send(:from).should eql 19
     end
 
     it "returns 29 when page is 4 and page_size is 10" do
-      Waistband::Query.new('search', 'shopping ikea', page: 4, page_size: 10).from.should eql 29
+      Waistband::Query.new('search', 'shopping ikea', page: 4, page_size: 10).send(:from).should eql 29
     end
 
     it "returns 9 when page is 2 and page_size is 10" do
-      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 10).from.should eql 9
+      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 10).send(:from).should eql 9
     end
 
   end
@@ -171,7 +173,7 @@ describe Waistband::Query do
       query.add_sort('created_at', 'desc')
       query.add_range('task_id', 1, 10)
 
-      query.to_hash.should eql({
+      query.send(:to_hash).should eql({
         query: {
           bool: {
             must: [
@@ -214,7 +216,7 @@ describe Waistband::Query do
       query.add_field('name')
       query.add_field('description')
       
-      query.to_hash.should eql({
+      query.send(:to_hash).should eql({
         query: {
           bool: {
             must: [
@@ -245,6 +247,33 @@ describe Waistband::Query do
       })
     end
 
+  end
+
+  describe '#results' do
+
+    it "returns a QueryResult array" do
+      add_result!
+
+      query.results.first.should be_a Waistband::QueryResult
+    end
+
+  end
+
+  describe '#paginated_results' do
+
+    it "returns a kaminari paginated array" do
+      add_result!
+
+      query.paginated_results.should be_an Array
+    end
+
+  end
+
+  def add_result!
+    index.store!("task_123123", {id: 123123, name: 'some shopping in ikea', user_id: 999, description: 'i need you to pick up some stuff in ikea'})
+    index.refresh
+
+    query.add_field('name')
   end
 
 end
