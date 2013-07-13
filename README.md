@@ -1,6 +1,6 @@
 # Waistband
 
-TODO: Write a gem description
+Ruby interface to Elastic Search
 
 ## Installation
 
@@ -36,7 +36,7 @@ development:
 You'll need a separate config file for each index you use, containing the index settings and mappings.  For example, for my search index, I use something akin to this:
 
 ```yml
-# #{APP_DIR}/config/waistband/waistband.yml
+# #{APP_DIR}/config/waistband/waistband_search.yml
 development:
   name: search
   stringify: false

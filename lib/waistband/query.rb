@@ -31,6 +31,10 @@ module Waistband
       end
     end
 
+    def hits
+      execute!['hits']['hits'] rescue []
+    end
+
     def total_results
       execute!['hits']['total'] rescue 0
     end
@@ -76,10 +80,6 @@ module Waistband
     end
 
     private
-
-      def hits
-        execute!['hits']['hits'] rescue []
-      end
 
       def execute!
         @executed ||= JSON.parse(RestClient.post(url, to_hash.to_json))
