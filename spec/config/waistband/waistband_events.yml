@@ -2,7 +2,7 @@ development: &DEV
   name: events
   stringify: true
   settings:
-    number_of_shards: 9
+    number_of_shards: 4
     number_of_replicas: 1
   mappings:
     event:
@@ -12,5 +12,3 @@ development: &DEV
 test:
   <<: *DEV
   name: events_test
-  settings:
-    number_of_shards: 4
