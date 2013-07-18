@@ -74,7 +74,7 @@ module Waistband
 
       def settings_json
         @settings_json ||= begin
-          settings = Waistband.config.index(@index)['settings']
+          settings = Waistband.config.index(@index)['settings']['index'].dup
           settings.delete('number_of_shards')
           settings = {index: settings}
           settings.to_json

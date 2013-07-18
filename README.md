@@ -57,7 +57,8 @@ development:
   name: search
   stringify: false
   settings:
-    number_of_shards: 4
+    index:
+      number_of_shards: 4
   mappings:
     event:
       _source:
