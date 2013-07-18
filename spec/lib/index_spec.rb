@@ -24,6 +24,13 @@ describe Waistband::Index do
     expect{ index.refresh }.to raise_error(RestClient::ResourceNotFound)
   end
 
+  it "updates the index's settings" do
+    response = JSON.parse(index.update_settings!)
+    response['ok'].should be_true
+    response['_index'].should eql 'events_test'
+    response['_type'].should eql 'settings'
+  end
+
   it "proxies to a query" do
     index.query('shopping').should be_a Waistband::Query
   end

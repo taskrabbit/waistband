@@ -29,6 +29,10 @@ module Waistband
       nil
     end
 
+    def update_settings!
+      RestClient.post("#{url}/settings", settings_json)
+    end
+
     # refresh the index
     def refresh
       RestClient.post("#{url}/_refresh", {})
@@ -66,6 +70,10 @@ module Waistband
 
       def url_for_key(key)
         "#{url}/#{@index.singularize}/#{key}"
+      end
+
+      def settings_json
+        @settings_json ||= Waistband.config.index(@index)['settings'].to_json
       end
 
       def index_json
