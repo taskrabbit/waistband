@@ -10,14 +10,14 @@ module Waistband
 
     def initialize(index)
       @index        = index
-      @index_name   = JSON.parse(index_json).delete('name')
-      @stringify    = JSON.parse(index_json).delete('stringify')
+      @index_name   = config['name']
+      @stringify    = config['stringify']
       @retries      = 0
     end
 
     # create the index
     def create!
-      RestClient.post(url, body: index_json)
+      RestClient.post(url, index_json)
     rescue RestClient::BadRequest => ex
       nil
     end
@@ -74,15 +74,17 @@ module Waistband
 
       def settings_json
         @settings_json ||= begin
-          settings = Waistband.config.index(@index)['settings']['index'].dup
-          settings.delete('number_of_shards')
-          settings = {index: settings}
-          settings.to_json
+          settings = config['settings']['index'].except('number_of_shards')
+          {index: settings}.to_json
         end
       end
 
       def index_json
-        @index_json ||= Waistband.config.index(@index).to_json
+        @index_json ||= config.except('name', 'stringify').to_json
+      end
+
+      def config
+        @config ||= Waistband.config.index(@index)
       end
 
       def url

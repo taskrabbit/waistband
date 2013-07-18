@@ -34,7 +34,7 @@ describe Waistband::Index do
   end
 
   it "constructs the index json" do
-    index.send(:index_json).should eql '{"name":"events_test","stringify":true,"settings":{"index":{"number_of_shards":4,"number_of_replicas":1}},"mappings":{"event":{"_source":{"includes":["*"]}}}}'
+    index.send(:index_json).should eql '{"settings":{"index":{"number_of_shards":4,"number_of_replicas":1}},"mappings":{"event":{"_source":{"includes":["*"]}}}}'
   end
 
   it "proxies to a query" do
