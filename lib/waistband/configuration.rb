@@ -30,9 +30,22 @@ module Waistband
     end
 
     def method_missing(method_name, *args, &block)
-      return @yml_config[method_name] if @yml_config[method_name]
+      return current_server[method_name]  if current_server[method_name]
+      return @yml_config[method_name]     if @yml_config[method_name]
       super
     end
+
+    private
+
+      def current_server
+        @current_server ||= servers.sample
+      end
+
+      def servers
+        @servers ||= @yml_config['servers'].map {|server_name, config| config}
+      end
+
+    # /private
 
   end
 end
