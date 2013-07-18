@@ -30,7 +30,7 @@ module Waistband
     end
 
     def update_settings!
-      RestClient.post("#{url}/settings", settings_json)
+      RestClient.put("#{url}/_settings", settings_json)
     end
 
     # refresh the index
@@ -73,7 +73,12 @@ module Waistband
       end
 
       def settings_json
-        @settings_json ||= Waistband.config.index(@index)['settings'].to_json
+        @settings_json ||= begin
+          settings = Waistband.config.index(@index)['settings']
+          settings.delete('number_of_shards')
+          settings = {index: settings}
+          settings.to_json
+        end
       end
 
       def index_json

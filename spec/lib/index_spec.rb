@@ -27,8 +27,10 @@ describe Waistband::Index do
   it "updates the index's settings" do
     response = JSON.parse(index.update_settings!)
     response['ok'].should be_true
-    response['_index'].should eql 'events_test'
-    response['_type'].should eql 'settings'
+  end
+
+  it "constructs the settings json" do
+    index.send(:settings_json).should eql '{"index":{"number_of_replicas":1}}'
   end
 
   it "proxies to a query" do
