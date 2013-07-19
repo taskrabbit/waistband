@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["davidjairala@gmail.com"]
   spec.description   = %q{Ruby interface to Elastic Search}
   spec.summary       = %q{Elastic Search all the things!}
-  spec.homepage      = "https://github.com/davidjairala/waistband"
+  spec.homepage      = "https://github.com/taskrabbit/waistband"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
