@@ -169,9 +169,7 @@ module Waistband
       end
 
       def from
-        f = @page_size * (@page - 1)
-        f -= 1 if f > 0
-        f
+        @page_size * (@page - 1)
       end
 
     # /private

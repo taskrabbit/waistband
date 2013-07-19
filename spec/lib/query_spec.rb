@@ -151,16 +151,16 @@ describe Waistband::Query do
       Waistband::Query.new('search', 'shopping ikea', page: 1, page_size: 20).send(:from).should eql 0
     end
 
-    it "returns 19 when page is 2 and page_size is 20" do
-      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 20).send(:from).should eql 19
+    it "returns 20 when page is 2 and page_size is 20" do
+      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 20).send(:from).should eql 20
     end
 
-    it "returns 29 when page is 4 and page_size is 10" do
-      Waistband::Query.new('search', 'shopping ikea', page: 4, page_size: 10).send(:from).should eql 29
+    it "returns 30 when page is 4 and page_size is 10" do
+      Waistband::Query.new('search', 'shopping ikea', page: 4, page_size: 10).send(:from).should eql 30
     end
 
-    it "returns 9 when page is 2 and page_size is 10" do
-      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 10).send(:from).should eql 9
+    it "returns 10 when page is 2 and page_size is 10" do
+      Waistband::Query.new('search', 'shopping ikea', page: 2, page_size: 10).send(:from).should eql 10
     end
 
   end
