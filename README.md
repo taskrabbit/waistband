@@ -12,7 +12,9 @@ brew install elasticsearch
 
 Add this line to your application's Gemfile:
 
-    gem 'waistband'
+    gem 'waistband', git: 'git@github.com:taskrabbit/waistband.git', tag: 'v0.0.9'
+
+Be sure to check out the [releases page](https://github.com/taskrabbit/waistband/releases) to get the latest tag.
 
 And then execute:
 
