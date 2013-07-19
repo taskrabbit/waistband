@@ -42,22 +42,16 @@ module Waistband
       # map everything to strings
       data = data.stringify_all if @stringify && data.respond_to?(:stringify_all)
 
-      with_retry do
-        RestClient.put(url_for_key(key), data.to_json)
-      end
+      RestClient.put(url_for_key(key), data.to_json)
     end
 
     def delete!(key)
-      with_retry do
-        RestClient.delete(url_for_key(key))
-      end
+      RestClient.delete(url_for_key(key))
     end
 
     def read(key)
-      with_retry do
-        fetched = RestClient.get(url_for_key(key))
-        JSON.parse(fetched)['_source'].with_indifferent_access
-      end
+      fetched = RestClient.get(url_for_key(key))
+      JSON.parse(fetched)['_source'].with_indifferent_access
     rescue RestClient::ResourceNotFound => ex
       nil
     end
@@ -89,27 +83,6 @@ module Waistband
 
       def url
         "#{Waistband.config.hostname}/#{@index_name}"
-      end
-
-      def with_retry
-        begin
-          yield
-        rescue RestClient::InternalServerError => ex
-          if no_shard_error?(ex)
-            retry
-          else
-            raise ex
-          end
-        end
-      end
-
-      def no_shard_error?(ex)
-        if tr_config.elastic_search_retry && @retries < MAX_RETRIES && ex.respond_to?(:http_body) && ex.http_body.match("NoShardAvailableActionException")
-          @retries += 1
-          true
-        else
-          false
-        end
       end
 
     # /private
