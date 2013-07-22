@@ -38,7 +38,7 @@ module Waistband
     private
 
       def current_server
-        @current_server ||= servers.sample
+        servers.sample
       end
 
       def servers
