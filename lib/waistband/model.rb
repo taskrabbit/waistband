@@ -1,4 +1,4 @@
-require 'digest/md5'
+require 'digest/sha1'
 require 'json'
 require 'active_support/core_ext/class/attribute'
 require 'active_support/values/time_zone'
