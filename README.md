@@ -167,6 +167,23 @@ For paginating the results, you can use the `#paginated_results` method, which r
 
 For convenience, Waistband provides two mixins useful to stringify Arrays and Hashes recursively in the `Waistband::StringifyAll::Array` and `Waistband::StringifyAll::Hash` modules.  Feel free to include them into your Array or Hash classes as necessary in an initializer if needed.
 
+### Model
+
+The gem offers a `Waistband::Model` that you can use to store model type data into the Elastic Search index.  You just inherit from the class and define the following class methods:
+
+```ruby
+class Thing < Waistband::Model
+  with_index :my_index_name
+
+  columns   :user_id, :content, :admin_visible
+  defaults  admin_visible: false
+
+  validates :user_id, :content
+end
+```
+
+For more information and extra methods, take a peek into the class docs.
+
 ## Contributing
 
 1. Fork it

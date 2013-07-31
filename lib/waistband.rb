@@ -7,6 +7,8 @@ module Waistband
   autoload :QueryResult,    "waistband/query_result"
   autoload :Query,          "waistband/query"
   autoload :Index,          "waistband/index"
+  autoload :QuickError,     "waistband/quick_error"
+  autoload :Model,          "waistband/model"
 
   class << self
 
