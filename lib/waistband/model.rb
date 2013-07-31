@@ -118,17 +118,6 @@ module Waistband
         end
       end
 
-      private
-
-        # retrieves the auto increment key for the app
-        # accepts app object or app_id
-        def auto_incr_key(app)
-          app_id = app.is_a?(Fixnum) ? app : app.id
-          "_auto_incr_#{app_id}"
-        end
-
-      # /private
-
     end # /class << self
 
     attr_reader :errors
