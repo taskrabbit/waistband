@@ -47,11 +47,15 @@ module Waistband
       end
 
       def first
-        query_asc.results.first
+        attrs = query_asc.results.first.try(:source)
+        return new(attrs) if attrs
+        nil
       end
 
       def last
-        query_desc.results.first
+        attrs = query_desc.results.first.try(:source)
+        return new(attrs) if attrs
+        nil
       end
 
       def with_index(name)

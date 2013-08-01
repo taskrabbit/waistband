@@ -34,6 +34,12 @@ describe Waistband::Model do
         Log.first.id.should eql logs.first.id
       end
 
+      it "returns a Log object" do
+        Log.create(user_id: 1, content: "something we wanna log!")
+        Log.index.refresh
+        Log.first.should be_a Log
+      end
+
     end
 
     describe '.last' do
@@ -47,6 +53,12 @@ describe Waistband::Model do
 
         Log.index.refresh
         Log.last.id.should eql logs.last.id
+      end
+
+      it "returns a Log object" do
+        Log.create(user_id: 1, content: "something we wanna log!")
+        Log.index.refresh
+        Log.last.should be_a Log
       end
 
     end
