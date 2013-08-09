@@ -22,9 +22,11 @@ describe Waistband::Index do
   it "destroys the index" do
     index.destroy!
     expect{ index.refresh }.to raise_error(RestClient::ResourceNotFound)
+    index.create!
   end
 
   it "updates the index's settings" do
+    index.refresh
     response = JSON.parse(index.update_settings!)
     response['ok'].should be_true
   end

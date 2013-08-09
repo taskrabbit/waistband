@@ -16,6 +16,11 @@ class IndexHelper
       end
     end
 
+    def prepare!
+      destroy_all!
+      create_all!
+    end
+
   end
 
 end

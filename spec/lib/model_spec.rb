@@ -23,6 +23,8 @@ describe Waistband::Model do
 
     describe '.first' do
 
+      before { IndexHelper.prepare! }
+
       it "returns first element by created_at" do
         logs = 10.times.to_a.map do |i|
           Timecop.travel((i + 1).minutes.from_now) do
@@ -43,6 +45,8 @@ describe Waistband::Model do
     end
 
     describe '.last' do
+
+      before { IndexHelper.prepare! }
 
       it "returns last element by created_at" do
         logs = 10.times.to_a.map do |i|
@@ -117,14 +121,14 @@ describe Waistband::Model do
     end
 
     it "automatically creates relationships" do
-      User = double
+      User ||= double
       User.should_receive(:find).with(1).once
       log.user
     end
 
     it "permits directly setting the relationship" do
-      User  = double
-      admin = double(id: 3)
+      User  ||= double
+      admin   = double(id: 3)
 
       log.user = admin
 

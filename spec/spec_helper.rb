@@ -19,9 +19,8 @@ RSpec.configure do |config|
     end
   end
 
-  config.before(:each) do |c|
-    IndexHelper.destroy_all!
-    IndexHelper.create_all!
+  config.before(:all) do |c|
+    IndexHelper.prepare!
   end
 
   config.after(:each) do
