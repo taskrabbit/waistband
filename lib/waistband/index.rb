@@ -41,9 +41,22 @@ module Waistband
 
     def store!(key, data)
       # map everything to strings
-      data = data.stringify_all if @stringify && data.respond_to?(:stringify_all)
+      if @stringify
+        original_data = data
 
-      RestClient.put(url_for_key(key), data.to_json)
+        if data.is_a?(Array)
+          data = Waistband::StringifiedArray.new(data)
+        elsif data.is_a?(Hash)
+          data = Waistband::StringifiedHash.new_from(data)
+        end
+
+        data = data.stringify_all if data.respond_to?(:stringify_all)
+      end
+
+      result  = RestClient.put(url_for_key(key), data.to_json)
+      data    = original_data if @stringify
+
+      result
     end
 
     def delete!(key)

@@ -70,7 +70,7 @@ development:
 ## List of config settings:
 
 * `name`: name of the index.  You can (and probably should) have a different name for the index for your test environment.
-* `stringify`: determines wether whatever is stored into the index is going to be converted to a string before storage.  Usually false unless you need it to be true for specific cases, like if for some `key => value` pairs the value is of different types some times.  If you do decide to stringify your values for an index, please read the **Stringify All** section of the docs further down.
+* `stringify`: determines wether whatever is stored into the index is going to be converted to a string before storage.  Usually false unless you need it to be true for specific cases, like if for some `key => value` pairs the value is of different types some times.
 * `settings`: settings for the Elastic Search index.  Refer to the ["admin indices update settings"](http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/) document for more info.
 * `mappings`: the index mappings.  More often than not you'll want to include all of the document attribute, so you'll do something like in the example above.  For more info, refer to the [mapping reference]("http://www.elasticsearch.org/guide/reference/mapping/").
 
@@ -162,10 +162,6 @@ query.results
 ```
 
 For paginating the results, you can use the `#paginated_results` method, which requires the [Kaminari](https://github.com/amatsuda/kaminari), gem.  If you use another gem, you can just override the method, etc.
-
-### Stringify All
-
-For convenience, Waistband provides two mixins useful to stringify Arrays and Hashes recursively in the `Waistband::StringifyAll::Array` and `Waistband::StringifyAll::Hash` modules.  Feel free to include them into your Array or Hash classes as necessary in an initializer if needed.
 
 ### Model
 

@@ -4,7 +4,7 @@ describe Waistband::Model do
 
   class Log < Waistband::Model
 
-    with_index  :events
+    with_index  :search
     columns     :log, :user_id, :content
     stringify   :content
     defaults    user_id: 999

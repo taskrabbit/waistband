@@ -2,13 +2,14 @@ require "waistband/version"
 
 module Waistband
   
-  autoload :Configuration,  "waistband/configuration"
-  autoload :StringifyAll,   "waistband/stringify_all"
-  autoload :QueryResult,    "waistband/query_result"
-  autoload :Query,          "waistband/query"
-  autoload :Index,          "waistband/index"
-  autoload :QuickError,     "waistband/quick_error"
-  autoload :Model,          "waistband/model"
+  autoload :Configuration,    "waistband/configuration"
+  autoload :StringifiedArray, "waistband/stringified_array"
+  autoload :StringifiedHash,  "waistband/stringified_hash"
+  autoload :QueryResult,      "waistband/query_result"
+  autoload :Query,            "waistband/query"
+  autoload :Index,            "waistband/index"
+  autoload :QuickError,       "waistband/quick_error"
+  autoload :Model,            "waistband/model"
 
   class << self
 
