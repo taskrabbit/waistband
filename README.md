@@ -145,6 +145,7 @@ index = Waistband::Index.new('search')
 query = index.query('shopping')
 query.add_fields('name', 'description') # look for the search term `shopping` in the attributes `name` and `description`
 query.add_term('task', 'true')          # only in documents where the attribute task is set to true
+query.add_optiona_term('task', 'true')  # prefers documents where the attribute task is set to true
 
 query.results # => returns an array of Waistband::QueryResult
 

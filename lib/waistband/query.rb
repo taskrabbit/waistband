@@ -9,15 +9,16 @@ module Waistband
     attr_accessor :page, :page_size
 
     def initialize(index, search_term, options = {})
-      @index        = index
-      @search_term  = search_term
-      @wildcards    = []
-      @fields       = []
-      @ranges       = []
-      @sorts        = []
-      @terms        = {}
-      @page         = (options[:page] || 1).to_i
-      @page_size    = (options[:page_size] || 20).to_i
+      @index          = index
+      @search_term    = search_term
+      @wildcards      = []
+      @fields         = []
+      @ranges         = []
+      @sorts          = []
+      @terms          = {}
+      @optional_terms = {}
+      @page           = (options[:page] || 1).to_i
+      @page_size      = (options[:page_size] || 20).to_i
     end
 
     def paginated_results
@@ -68,9 +69,17 @@ module Waistband
       @terms[key] ||= {
         keywords: []
       }
-      @terms[key][:keywords] += words.gsub(/ +/, ' ').strip.split(' ').uniq
+      @terms[key][:keywords] += prep_words_uniquely(words)
     end
     alias :add_term :add_terms
+
+    def add_optional_terms(key, words)
+      @optional_terms[key] ||= {
+        keywords: []
+      }
+      @optional_terms[key][:keywords] += prep_words_uniquely(words)
+    end
+    alias :add_optional_term :add_optional_terms
 
     def add_sort(key, ord)
       @sorts << {
@@ -93,9 +102,9 @@ module Waistband
         {
           query: {
             bool: {
-              must: must_to_hash,
+              must:     must_to_hash,
               must_not: [],
-              should: []
+              should:   should_to_hash
             }
           },
           from: from,
@@ -158,6 +167,16 @@ module Waistband
         must
       end
 
+      def should_to_hash
+        should = []
+
+        optional_terms.each do |term|
+          should << term
+        end
+
+        should
+      end
+
       def terms
         @terms.map do |key, term|
           {
@@ -168,8 +187,22 @@ module Waistband
         end
       end
 
+      def optional_terms
+        @optional_terms.map do |key, term|
+          {
+            terms: {
+              key.to_sym => term[:keywords]
+            }
+          }
+        end
+      end
+
       def from
         @page_size * (@page - 1)
+      end
+
+      def prep_words_uniquely(str)
+        str.gsub(/ +/, ' ').strip.split(' ').uniq
       end
 
     # /private

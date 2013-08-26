@@ -12,22 +12,42 @@ describe Waistband::Query do
 
   describe '#execute!' do
 
-    it "gets results from elastic search" do
-      add_result!
+    before { add_result! }
 
+    it "gets results from elastic search" do
       json = query.send(:execute!)
+
       json['hits'].should be_a Hash
       json['hits']['total'].should > 0
-      json['hits']['hits'].size.should eql 1
+      json['hits']['hits'].size.should eql 2
 
-      json['hits']['hits'].each do |hit|
-        hit['_id'].should match(/^task_.*/)
-        hit['_source'].should be_a Hash
-        hit['_source']['id'].should eql 123123
-        hit['_source']['name'].should eql 'some shopping in ikea'
-        hit['_source']['user_id'].should eql 999
-        hit['_source']['description'].should eql 'i need you to pick up some stuff in ikea'
-      end
+      hit = json['hits']['hits'].first
+
+      hit['_id'].should match(/^task_.*/)
+      hit['_source'].should be_a Hash
+      hit['_source']['id'].should eql 123123
+      hit['_source']['name'].should eql 'some shopping in ikea'
+      hit['_source']['user_id'].should eql 999
+      hit['_source']['description'].should eql 'i need you to pick up some stuff in ikea'
+    end
+
+    it "boosts results with optional terms" do
+      query = index.query('shopping ikea')
+      query.add_field('name')
+      query.add_optional_term('internal', 'true')
+
+      json = query.send(:execute!)
+
+      json['hits']['hits'].size.should eql 2
+
+      hit = json['hits']['hits'].first
+
+      hit['_id'].should match(/^task_.*/)
+      hit['_source'].should be_a Hash
+      hit['_source']['id'].should eql 234234
+      hit['_source']['name'].should eql "some shopping in ikea and trader joe's"
+      hit['_source']['user_id'].should eql 987
+      hit['_source']['description'].should eql 'pick me up some eggs'
     end
 
   end
@@ -77,6 +97,20 @@ describe Waistband::Query do
     it "adds several terms on multiple words" do
       query.add_term('metro', 'sf bay area')
       query.instance_variable_get('@terms')['metro'][:keywords].should eql ['sf', 'bay', 'area']
+    end
+
+  end
+
+  describe '#add_optional_term' do
+
+    it "adds the term on the key" do
+      query.add_optional_term('metro', 'boston')
+      query.instance_variable_get('@optional_terms')['metro'][:keywords].should eql ['boston']
+    end
+
+    it "adds several terms on multiple words" do
+      query.add_optional_term('metro', 'sf bay area')
+      query.instance_variable_get('@optional_terms')['metro'][:keywords].should eql ['sf', 'bay', 'area']
     end
 
   end
@@ -213,6 +247,7 @@ describe Waistband::Query do
     it 'constructs the query with several terms' do
       query.add_term('metro', 'sf bay area')
       query.add_term('geography', 'San Francisco')
+      query.add_optional_term('internal', 'true')
       query.add_field('name')
       query.add_field('description')
       
@@ -238,7 +273,13 @@ describe Waistband::Query do
               }
             ],
             must_not: [],
-            should: []
+            should: [
+              {
+                terms: {
+                  internal: ['true']
+                }
+              }
+            ]
           }
         },
         from: 0,
@@ -270,7 +311,8 @@ describe Waistband::Query do
   end
 
   def add_result!
-    index.store!("task_123123", {id: 123123, name: 'some shopping in ikea', user_id: 999, description: 'i need you to pick up some stuff in ikea'})
+    index.store!("task_123123", {id: 123123, name: 'some shopping in ikea',                   user_id: 999, description: 'i need you to pick up some stuff in ikea',  internal: false})
+    index.store!("task_234234", {id: 234234, name: "some shopping in ikea and trader joe's",  user_id: 987, description: 'pick me up some eggs',                      internal: true})
     index.refresh
 
     query.add_field('name')
