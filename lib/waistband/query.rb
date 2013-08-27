@@ -198,8 +198,8 @@ module Waistband
         @page_size * (@page - 1)
       end
 
-      def prep_words_uniquely(str)
-        str.gsub(/ +/, ' ').strip.split(' ').uniq
+      def prep_words_uniquely(val)
+        val.to_s.gsub(/ +/, ' ').strip.split(' ').uniq
       end
 
     # /private
