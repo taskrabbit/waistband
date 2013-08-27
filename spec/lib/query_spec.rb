@@ -50,6 +50,26 @@ describe Waistband::Query do
       hit['_source']['description'].should eql 'pick me up some eggs'
     end
 
+    it "excludes results" do
+      query = index.query('shopping ikea')
+      query.add_field('name')
+      query.add_exclude_term('internal', 'true')
+
+      json = query.send(:execute!)
+
+      json['hits']['hits'].size.should eql 1
+
+      hit = json['hits']['hits'].first
+
+      hit['_id'].should match(/^task_.*/)
+      hit['_source'].should be_a Hash
+      hit['_source']['id'].should eql 123123
+      hit['_source']['name'].should eql 'some shopping in ikea'
+      hit['_source']['user_id'].should eql 999
+      hit['_source']['description'].should eql 'i need you to pick up some stuff in ikea'
+      hit['_source']['internal'].should be_false
+    end
+
   end
 
   describe '#add_sort' do
@@ -101,6 +121,20 @@ describe Waistband::Query do
 
   end
 
+  describe '#add_exclude_term' do
+
+    it "adds the term on the key" do
+      query.add_exclude_term('metro', 'boston')
+      query.instance_variable_get('@exclude_terms')['metro'][:keywords].should eql ['boston']
+    end
+
+    it "adds several terms on multiple words" do
+      query.add_exclude_term('metro', 'sf bay area')
+      query.instance_variable_get('@exclude_terms')['metro'][:keywords].should eql ['sf', 'bay', 'area']
+    end
+
+  end
+
   describe '#add_optional_term' do
 
     it "adds the term on the key" do
@@ -111,48 +145,6 @@ describe Waistband::Query do
     it "adds several terms on multiple words" do
       query.add_optional_term('metro', 'sf bay area')
       query.instance_variable_get('@optional_terms')['metro'][:keywords].should eql ['sf', 'bay', 'area']
-    end
-
-  end
-
-  describe '#terms' do
-
-    it "builds an array of all terms" do
-      query.add_term('metro', 'sf bay area')
-      query.send(:terms).should eql([
-        {
-          terms: {
-            metro: ['sf', 'bay', 'area']
-          }
-        }
-      ])
-    end
-
-    it "builds an array of single terms" do
-      query.add_term('metro', 'boston')
-      query.send(:terms).should eql([
-        {
-          terms: {
-            metro: ['boston']
-          }
-        }
-      ])
-    end
-
-    it "constructs correctly with multiple terms" do
-      query.add_term('metro', 'sf bay area')
-      query.add_term('geography', 'San Francisco')
-      query.send(:terms).should eql([
-        {
-          terms: {
-            metro: ["sf", "bay", "area"]}
-          },
-          {
-            terms: {
-              geography: ["San", "Francisco"]
-            }
-          }
-      ])
     end
 
   end
@@ -169,6 +161,22 @@ describe Waistband::Query do
             fields: ['name']
           }
         },
+        {
+          terms: {
+            metro: ["sf", "bay", "area"]
+          }
+        }
+      ])
+    end
+
+  end
+
+  describe '#must_not_to_hash' do
+
+    it "creates an array of the must of the query" do
+      query.add_exclude_term('metro', 'sf bay area')
+
+      query.send(:must_not_to_hash).should eql([
         {
           terms: {
             metro: ["sf", "bay", "area"]
@@ -248,6 +256,7 @@ describe Waistband::Query do
       query.add_term('metro', 'sf bay area')
       query.add_term('geography', 'San Francisco')
       query.add_optional_term('internal', 'true')
+      query.add_exclude_term('user_id', '999')
       query.add_field('name')
       query.add_field('description')
       
@@ -272,7 +281,13 @@ describe Waistband::Query do
                 }
               }
             ],
-            must_not: [],
+            must_not: [
+              {
+                terms: {
+                  user_id: ['999']
+                }
+              }
+            ],
             should: [
               {
                 terms: {

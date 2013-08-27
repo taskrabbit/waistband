@@ -16,6 +16,7 @@ module Waistband
       @ranges         = []
       @sorts          = []
       @terms          = {}
+      @exclude_terms  = {}
       @optional_terms = {}
       @page           = (options[:page] || 1).to_i
       @page_size      = (options[:page_size] || 20).to_i
@@ -73,6 +74,14 @@ module Waistband
     end
     alias :add_term :add_terms
 
+    def add_exclude_terms(key, words)
+      @exclude_terms[key] ||= {
+        keywords: []
+      }
+      @exclude_terms[key][:keywords] += prep_words_uniquely(words)
+    end
+    alias :add_exclude_term :add_exclude_terms
+
     def add_optional_terms(key, words)
       @optional_terms[key] ||= {
         keywords: []
@@ -103,7 +112,7 @@ module Waistband
           query: {
             bool: {
               must:     must_to_hash,
-              must_not: [],
+              must_not: must_not_to_hash,
               should:   should_to_hash
             }
           },
@@ -160,35 +169,23 @@ module Waistband
           }
         } if @match.present?
 
-        terms.each do |term|
+        prep_term_hash(@terms).each do |term|
           must << term
         end
 
         must
       end
 
+      def must_not_to_hash
+        prep_term_hash(@exclude_terms).map { |term| term }
+      end
+
       def should_to_hash
-        should = []
-
-        optional_terms.each do |term|
-          should << term
-        end
-
-        should
+        prep_term_hash(@optional_terms).map { |term| term }
       end
 
-      def terms
-        @terms.map do |key, term|
-          {
-            terms: {
-              key.to_sym => term[:keywords]
-            }
-          }
-        end
-      end
-
-      def optional_terms
-        @optional_terms.map do |key, term|
+      def prep_term_hash(terms)
+        terms.map do |key, term|
           {
             terms: {
               key.to_sym => term[:keywords]
