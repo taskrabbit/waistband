@@ -16,7 +16,7 @@ module Waistband
     end
 
     def respond_to_missing?(method_name, include_private = false)
-      return true if @source.keys.map(&:to_s).include?(method_name.to_s)
+      return true if @source.has_key?(method_name.to_s)
       super
     end
 
