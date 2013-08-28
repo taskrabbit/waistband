@@ -7,7 +7,7 @@ module Waistband
 
     def initialize(row)
       @source = row['_source'].stringify_keys
-      @_id     = row['_id']
+      @_id    = row['_id']
       @score  = row['_score']
     end
 
