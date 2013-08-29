@@ -9,7 +9,6 @@ describe Waistband::Index do
   it "initializes values" do
     index.instance_variable_get('@index_name').should eql 'events_test'
     index.instance_variable_get('@stringify').should  eql true
-    index.instance_variable_get('@retries').should    eql 0
   end
 
   it "creates the index" do
@@ -30,14 +29,6 @@ describe Waistband::Index do
     index.refresh
     response = JSON.parse(index.update_settings!)
     response['ok'].should be_true
-  end
-
-  it "constructs the settings json" do
-    index.send(:settings_json).should eql '{"index":{"number_of_replicas":1}}'
-  end
-
-  it "constructs the index json" do
-    index.send(:index_json).should eql '{"settings":{"index":{"number_of_shards":4,"number_of_replicas":1}},"mappings":{"event":{"_source":{"includes":["*"]}}}}'
   end
 
   it "proxies to a query" do

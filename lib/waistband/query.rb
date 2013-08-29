@@ -99,12 +99,16 @@ module Waistband
 
     private
 
-      def execute!
-        @executed ||= JSON.parse(RestClient.post(url, to_hash.to_json))
+      def url
+        index.search_url
       end
 
-      def url
-        "#{Waistband.config.hostname}/#{@index}/_search"
+      def index
+        Waistband::Index.new(@index)
+      end
+
+      def execute!
+        @executed ||= JSON.parse(RestClient.post(url, to_hash.to_json))
       end
 
       def to_hash

@@ -31,17 +31,19 @@ Configuration is generally pretty simple.  First, create a folder where you'll s
 ```yml
 # #{APP_DIR}/config/waistband/waistband.yml
 development:
+  timeout: 2
   servers:
     server1:
       host: http://localhost
       port: 9200
 ```
 
-You can name the servers whatever you want, and one of them is selected at random using `Array.sample` when initializing the configuration singleton.  Here's an example with two servers:
+You can name the servers whatever you want, and one of them is selected at random using `Array.sample`, excluding blacklisted servers, when conduction operations on the server.  Here's an example with two servers:
 
 ```yml
 # #{APP_DIR}/config/waistband/waistband.yml
 development:
+  timeout: 2
   servers:
     server1:
       host: http://173.247.192.214

@@ -1,42 +1,29 @@
-require 'json'
-require 'rest-client'
-require 'active_support/core_ext/string/inflections'
-require 'active_support/core_ext/hash/indifferent_access'
-require 'active_support/core_ext/hash/except'
-
 module Waistband
   class Index
-
-    MAX_RETRIES = 10
 
     def initialize(index)
       @index        = index
       @index_name   = config['name']
       @stringify    = config['stringify']
-      @retries      = 0
     end
 
     # create the index
     def create!
-      RestClient.post(url, index_json)
-    rescue RestClient::BadRequest => ex
-      nil
+      connection.create! @index
     end
 
     # destroy the index
     def destroy!
-      RestClient.delete(url)
-    rescue RestClient::ResourceNotFound => ex
-      nil
+      connection.destroy! @index
     end
 
     def update_settings!
-      RestClient.put("#{url}/_settings", settings_json)
+      connection.update_settings! @index
     end
 
     # refresh the index
     def refresh
-      RestClient.post("#{url}/_refresh", {})
+      connection.refresh @index
     end
 
     def store!(key, data)
@@ -44,59 +31,45 @@ module Waistband
       if @stringify
         original_data = data
 
-        if data.is_a?(Array)
-          data = Waistband::StringifiedArray.new(data)
-        elsif data.is_a?(Hash)
-          data = Waistband::StringifiedHash.new_from(data)
+        if data.is_a? Array
+          data = ::Waistband::StringifiedArray.new data
+        elsif data.is_a? Hash
+          data = ::Waistband::StringifiedHash.new_from data
         end
 
-        data = data.stringify_all if data.respond_to?(:stringify_all)
+        data = data.stringify_all if data.respond_to? :stringify_all
       end
 
-      result  = RestClient.put(url_for_key(key), data.to_json)
+      result  = connection.put @index, key, data
       data    = original_data if @stringify
 
       result
     end
 
     def delete!(key)
-      RestClient.delete(url_for_key(key))
+      connection.delete! @index, key
     end
 
     def read(key)
-      fetched = RestClient.get(url_for_key(key))
-      JSON.parse(fetched)['_source'].with_indifferent_access
-    rescue RestClient::ResourceNotFound => ex
-      nil
+      connection.read @index, key
     end
 
     def query(term, options = {})
-      Waistband::Query.new(@index_name, term, options)
+      ::Waistband::Query.new @index, term, options
+    end
+
+    def search_url
+      connection.search_url_for_index @index
     end
 
     private
 
-      def url_for_key(key)
-        "#{url}/#{@index.singularize}/#{key}"
-      end
-
-      def settings_json
-        @settings_json ||= begin
-          settings = config['settings']['index'].except('number_of_shards')
-          {index: settings}.to_json
-        end
-      end
-
-      def index_json
-        @index_json ||= config.except('name', 'stringify').to_json
+      def connection
+        ::Waistband::Connection.new
       end
 
       def config
-        @config ||= Waistband.config.index(@index)
-      end
-
-      def url
-        "#{Waistband.config.hostname}/#{@index_name}"
+        Waistband.config.index @index
       end
 
     # /private
