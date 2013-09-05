@@ -1,10 +1,11 @@
 development: &DEV
+  timeout: 2
   servers:
     server1:
       host: http://localhost
       port: 9200
     server2:
-      host: http://localhost
+      host: http://127.0.0.1
       port: 9200
 
 test:

@@ -3,6 +3,7 @@ require "waistband/version"
 module Waistband
   
   autoload :Configuration,    "waistband/configuration"
+  autoload :Connection,       "waistband/connection"
   autoload :StringifiedArray, "waistband/stringified_array"
   autoload :StringifiedHash,  "waistband/stringified_hash"
   autoload :QueryResult,      "waistband/query_result"
