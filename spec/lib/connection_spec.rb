@@ -19,25 +19,48 @@ describe Waistband::Connection do
   describe '#execute!' do
 
     it "wraps directly to rest client" do
-      RestClient.should_receive(:get).with('somekey', nil).once
+      connection = Waistband::Connection.new(orderly: true)
+
+      RestClient.should_receive(:get).with('http://localhost:9200/somekey', nil).once
       connection.send(:execute!, 'get', 'somekey')
     end
 
     describe 'failures' do
 
-      [Timeout::Error, Errno::EHOSTUNREACH].each do |exception|
+      [Timeout::Error, Errno::EHOSTUNREACH, Errno::ECONNREFUSED].each do |exception|
         it "blacklists the server when #{exception}" do
           connection = Waistband::Connection.new(retry_on_fail: false)
 
-          RestClient.should_receive(:get).with('somekey', nil).and_raise exception
+          RestClient.should_receive(:get).with(kind_of(String), nil).and_raise exception
           connection.send(:execute!, 'get', 'somekey')
 
           connection.send(:available_servers).size.should eql 1
         end
       end
 
+      it "blacklists correctly when server is not responding" do
+        ::Waistband.config.stub(:servers).and_return(
+          [
+            {
+              host: "http://localhost",
+              port: 9123,
+              _id: "567890a5ce74182e5cd123e299993ab510c56123"
+            }.with_indifferent_access,
+            {
+              host: "http://localhost",
+              port: 9200,
+              _id: "282f32a5ce74182e5cd628e298b93ab510c5660c"
+            }.with_indifferent_access
+          ]
+        )
+
+        connection = Waistband::Connection.new(orderly: true)
+        expect { connection.refresh('events') }.to_not raise_error
+      end
+
       it "keeps retrying till out of servers when retry_on_fail is true" do
-        RestClient.should_receive(:get).with('somekey', nil).twice.and_raise(Timeout::Error)
+        RestClient.should_receive(:get).with('http://localhost:9200/somekey', nil).once.and_raise(Timeout::Error)
+        RestClient.should_receive(:get).with('http://127.0.0.1:9200/somekey', nil).once.and_raise(Timeout::Error)
 
         expect {
           connection.send(:execute!, 'get', 'somekey')
@@ -51,30 +74,26 @@ describe Waistband::Connection do
 
   end
 
-  describe '#url_for_key' do
+  describe '#relative_url_for_key' do
 
-    it "returns the url for a key" do
-      url = connection.send(:url_for_key, 'search', 'key123')
-      url.should match /^http\:\/\//
-      url.should match /\:9200\/search_test\/search\/key123$/
+    it "returns the relative url for a key" do
+      url = connection.send(:relative_url_for_key, 'search', 'key123')
+      url.should match /^search_test\/search\/key123$/
 
-      url = connection.send(:url_for_key, 'events', '9986')
-      url.should match /^http\:\/\//
-      url.should match /\:9200\/events_test\/event\/9986$/
+      url = connection.send(:relative_url_for_key, 'events', '9986')
+      url.should match /^events_test\/event\/9986$/
     end
 
   end
 
-  describe '#url_for_index' do
+  describe '#relative_url_for_index' do
 
     it "returns the url for an index" do
-      url = connection.send(:url_for_index, 'search')
-      url.should match /^http\:\/\//
-      url.should match /\:9200\/search_test$/
+      url = connection.send(:relative_url_for_index, 'search')
+      url.should match /^search_test$/
 
-      url = connection.send(:url_for_index, 'events')
-      url.should match /^http\:\/\//
-      url.should match /\:9200\/events_test$/
+      url = connection.send(:relative_url_for_index, 'events')
+      url.should match /^events_test$/
     end
 
   end
