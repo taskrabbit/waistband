@@ -56,6 +56,8 @@ describe Waistband::Connection do
 
         connection = Waistband::Connection.new(orderly: true)
         expect { connection.refresh('events') }.to_not raise_error
+
+        connection.instance_variable_get('@blacklist').should eql ['567890a5ce74182e5cd123e299993ab510c56123']
       end
 
       it "keeps retrying till out of servers when retry_on_fail is true" do
