@@ -27,7 +27,7 @@ describe Waistband::Connection do
 
     describe 'failures' do
 
-      [Timeout::Error, Errno::EHOSTUNREACH, Errno::ECONNREFUSED].each do |exception|
+      [Timeout::Error, Errno::EHOSTUNREACH, Errno::ECONNREFUSED, Errno::ECONNRESET].each do |exception|
         it "blacklists the server when #{exception}" do
           connection = Waistband::Connection.new(retry_on_fail: false)
 

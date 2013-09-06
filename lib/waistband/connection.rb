@@ -62,7 +62,7 @@ module Waistband
         Timeout::timeout ::Waistband.config.timeout do
           RestClient.send method_name, full_url, data
         end
-      rescue Timeout::Error, Errno::EHOSTUNREACH, Errno::ECONNREFUSED => e
+      rescue Timeout::Error, Errno::EHOSTUNREACH, Errno::ECONNREFUSED, Errno::ECONNRESET
         # something's wrong, lets blacklist this sucker
         blacklist! @server
         retry if @retry_on_fail
