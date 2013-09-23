@@ -97,6 +97,17 @@ module Waistband
       }
     end
 
+    def add_random_sort
+      @random_sort = {
+        _script:  {
+          script:   "Math.random()",
+          type:     :number,
+          params:   {},
+          order:    :asc
+        }
+      }
+    end
+
     private
 
       def url
@@ -127,6 +138,8 @@ module Waistband
       end
 
       def sort_to_hash
+        return @random_sort if @random_sort
+
         sort = []
 
         @sorts.each do |s|

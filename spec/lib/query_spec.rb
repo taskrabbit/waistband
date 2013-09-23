@@ -84,6 +84,43 @@ describe Waistband::Query do
 
   end
 
+  describe '#add_random_sort' do
+
+    it "sets the correct instance variables" do
+      query.add_random_sort
+
+      query.instance_variable_get('@random_sort').should eql({
+        _script:  {
+          script:   "Math.random()",
+          type:     :number,
+          params:   {},
+          order:    :asc
+        }
+      })
+
+      query.send(:sort_to_hash).should eql({
+        _script:  {
+          script:   "Math.random()",
+          type:     :number,
+          params:   {},
+          order:    :asc
+        }
+      })
+    end
+
+    it "sorts restuls randomly" do
+      add_result!
+
+      query = index.query('shopping ikea')
+
+      query.add_field('name')
+      query.add_random_sort
+
+      query.results.size.should eql 2
+    end
+
+  end
+
   describe '#add_range' do
 
     it "adds a range" do
