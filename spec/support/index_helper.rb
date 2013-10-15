@@ -1,6 +1,6 @@
 class IndexHelper
 
-  INDEXES = %w(events search)
+  INDEXES = %w(events search geo)
 
   class << self
 

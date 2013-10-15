@@ -1,0 +1,19 @@
+development: &DEV
+  name: waistband_geo
+  stringify: false
+  settings:
+    index:
+      number_of_shards: 4
+  mappings:
+    geo:
+      _source:
+        includes: ["*"]
+      properties:
+        work_area:
+          type: geo_shape
+          tree: geohash
+          precision: 5m
+
+test:
+  <<: *DEV
+  name: waistband_geo_test

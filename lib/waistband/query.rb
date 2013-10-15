@@ -6,6 +6,8 @@ require 'kaminari/models/array_extension' if defined?(Kaminari)
 module Waistband
   class Query
 
+    include ::Waistband::QueryHelpers
+
     attr_accessor :page, :page_size
 
     def initialize(index, search_term, options = {})
@@ -20,25 +22,6 @@ module Waistband
       @optional_terms = {}
       @page           = (options[:page] || 1).to_i
       @page_size      = (options[:page_size] || 20).to_i
-    end
-
-    def paginated_results
-      return Kaminari.paginate_array(results, total_count: total_results).page(@page).per(@page_size) if defined?(Kaminari)
-      raise "Please include the `kaminari` gem to use this method!"
-    end
-
-    def results
-      hits.map do |hit|
-        Waistband::QueryResult.new(hit)
-      end
-    end
-
-    def hits
-      execute!['hits']['hits'] rescue []
-    end
-
-    def total_results
-      execute!['hits']['total'] rescue 0
     end
 
     def add_match(field)
@@ -109,18 +92,6 @@ module Waistband
     end
 
     private
-
-      def url
-        index.search_url
-      end
-
-      def index
-        Waistband::Index.new(@index)
-      end
-
-      def execute!
-        @executed ||= JSON.parse(RestClient.post(url, to_hash.to_json))
-      end
 
       def to_hash
         {
@@ -209,10 +180,6 @@ module Waistband
             }
           }
         end
-      end
-
-      def from
-        @page_size * (@page - 1)
       end
 
       def prep_words_uniquely(val)
