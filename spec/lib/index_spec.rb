@@ -35,6 +35,10 @@ describe Waistband::Index do
     index.query('shopping').should be_a Waistband::Query
   end
 
+  it "proxies to a free query" do
+    index.free_query.should be_a Waistband::FreeQuery
+  end
+
   describe "storing" do
 
     it "stores data" do

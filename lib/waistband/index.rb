@@ -58,6 +58,10 @@ module Waistband
       ::Waistband::Query.new @index, term, options
     end
 
+    def free_query(options = {})
+      ::Waistband::FreeQuery.new @index, options
+    end
+
     def search_url
       connection.search_url_for_index @index
     end
