@@ -9,7 +9,6 @@ module Waistband
   autoload :QueryResult,      "waistband/query_result"
   autoload :QueryHelpers,     "waistband/query_helpers"
   autoload :Query,            "waistband/query"
-  autoload :FreeQuery,        "waistband/free_query"
   autoload :Index,            "waistband/index"
   autoload :QuickError,       "waistband/quick_error"
   autoload :Model,            "waistband/model"

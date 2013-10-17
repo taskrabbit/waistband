@@ -54,12 +54,8 @@ module Waistband
       connection.read @index, key
     end
 
-    def query(term, options = {})
-      ::Waistband::Query.new @index, term, options
-    end
-
-    def free_query(options = {})
-      ::Waistband::FreeQuery.new @index, options
+    def query(options = {})
+      ::Waistband::Query.new @index, options
     end
 
     def search_url

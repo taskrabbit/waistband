@@ -1,3 +1,3 @@
 module Waistband
-  VERSION = "0.4.2"
+  VERSION = "0.7.0"
 end
