@@ -31,7 +31,7 @@ module Waistband
       end
 
       def execute!
-        JSON.parse(RestClient.post(url, to_hash.to_json))
+        JSON.parse(RestClient::Request.execute(method: :get, url: url, payload: to_hash.to_json))
       end
 
       def from
