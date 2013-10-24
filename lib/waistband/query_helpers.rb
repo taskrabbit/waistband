@@ -1,3 +1,5 @@
+require 'rest-client'
+
 module Waistband
   module QueryHelpers
 
