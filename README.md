@@ -12,9 +12,7 @@ brew install elasticsearch
 
 Add this line to your application's Gemfile:
 
-    gem 'waistband', git: 'git@github.com:taskrabbit/waistband.git', tag: 'v0.0.9'
-
-Be sure to check out the [releases page](https://github.com/taskrabbit/waistband/releases) to get the latest tag.
+    gem 'waistband'
 
 And then execute:
 
@@ -140,14 +138,16 @@ index.read('my_data')
 
 ### Searching
 
-For searching, Waistband has the Query class available:
+For searching, you construct a query from your index:
 
 ```ruby
 index = Waistband::Index.new('search')
-query = index.query('shopping')
-query.add_fields('name', 'description') # look for the search term `shopping` in the attributes `name` and `description`
-query.add_term('task', 'true')          # only in documents where the attribute task is set to true
-query.add_optiona_term('task', 'true')  # prefers documents where the attribute task is set to true
+query = index.query(page_size: 5).prepare({
+  query: {
+    term: { hidden: false }
+  },
+  sort: { created_at: {order: 'desc' } }
+})
 
 query.results # => returns an array of Waistband::QueryResult
 
@@ -165,21 +165,6 @@ query.results
 ```
 
 For paginating the results, you can use the `#paginated_results` method, which requires the [Kaminari](https://github.com/amatsuda/kaminari), gem.  If you use another gem, you can just override the method, etc.
-
-### Model
-
-The gem offers a `Waistband::Model` that you can use to store model type data into the Elastic Search index.  You just inherit from the class and define the following class methods:
-
-```ruby
-class Thing < Waistband::Model
-  with_index :my_index_name
-
-  columns   :user_id, :content, :admin_visible
-  defaults  admin_visible: false
-
-  validates :user_id, :content
-end
-```
 
 For more information and extra methods, take a peek into the class docs.
 
