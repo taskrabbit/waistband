@@ -4,21 +4,20 @@ class IndexHelper
 
   class << self
 
-    def destroy_all!
+    def destroy_all
       IndexHelper::INDEXES.each do |index|
-        Waistband::Index.new(index).destroy!
+        Waistband::Index.new(index).destroy
       end
+
+      Waistband::Index.new('events', subs: %w(2013 01)).destroy
     end
 
-    def create_all!
+    def create_all
       IndexHelper::INDEXES.each do |index|
-        Waistband::Index.new(index).create!
+        Waistband::Index.new(index).create
       end
-    end
 
-    def prepare!
-      destroy_all!
-      create_all!
+      Waistband::Index.new('events', subs: %w(2013 01)).create
     end
 
   end

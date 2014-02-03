@@ -56,7 +56,6 @@ You'll need a separate config file for each index you use, containing the index 
 ```yml
 # #{APP_DIR}/config/waistband/waistband_search.yml
 development:
-  name: search
   stringify: false
   settings:
     index:
@@ -69,10 +68,10 @@ development:
 
 ## List of config settings:
 
-* `name`: name of the index.  You can (and probably should) have a different name for the index for your test environment.
-* `stringify`: determines wether whatever is stored into the index is going to be converted to a string before storage.  Usually false unless you need it to be true for specific cases, like if for some `key => value` pairs the value is of different types some times.
 * `settings`: settings for the Elastic Search index.  Refer to the ["admin indices update settings"](http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/) document for more info.
 * `mappings`: the index mappings.  More often than not you'll want to include all of the document attribute, so you'll do something like in the example above.  For more info, refer to the [mapping reference]("http://www.elasticsearch.org/guide/reference/mapping/").
+* `name`: optional - name of the index.  You can (and probably should) have a different name for the index for your test environment.  If not specified, it defaults to the name of the yml file minus the `waistband_` portion, so in the above example, the index name would become `search_#{env}`, where env is your environment variable as defined in `Waistband::Configuration#setup` (determined by `RAILS_ENV` or `RACK_ENV`).
+* `stringify`: optional - determines wether whatever is stored into the index is going to be converted to a string before storage.  Usually false unless you need it to be true for specific cases, like if for some `key => value` pairs the value is of different types some times.
 
 ## Initializer
 
@@ -113,6 +112,8 @@ When writing tests, it would generally be advisable to destroy and create the in
 ```ruby
 Waistband::Index.new('search').refresh
 ```
+
+Note: most index methods such as `create`, `destroy`, `read`, etc, have an equivalent bang method (`destroy!`) that will actually throw an exception if something goes wrong.  For example, `destroy` will return nil if the index doesn't exist, but will raise any other unrelated exceptions, whereas `destroy!` will raise even the Index Not Found exception.
 
 #### Writing, reading and deleting from an index
 
@@ -167,6 +168,32 @@ query.results
 For paginating the results, you can use the `#paginated_results` method, which requires the [Kaminari](https://github.com/amatsuda/kaminari), gem.  If you use another gem, you can just override the method, etc.
 
 For more information and extra methods, take a peek into the class docs.
+
+### Sub-Indexes
+
+Sometimes it can be useful to sub-divide your index into smaller indexes based on dates or other partitioning schemes.  To do this, the `Index` class exposes the `subs` option on instantiation:
+
+```ruby
+index = Waistband::Index.new('events', subs: %w(2013 01))
+index.create!
+```
+
+This creates the index `events__2013_01`, which in your application logic you could design to store all event data for Jan 2013.  You'd do the same for Feb, etc., and when you no longer need one of the older ones, you could delete just that sub-index, instead of things getting more complicated.
+
+### Aliasing
+
+Part of subbing is gonna be creating the correct aliases that group up your sub-indexes.
+
+```ruby
+index = Waistband::Index.new('events', subs: %w(2013 01))
+index.create!
+index.alias!('my_super_events_alias')
+=> true
+index.fetch_alias('my_super_events_alias')
+=> {"events__2013_01"=>{"aliases"=>{"my_super_events_alias"=>{}}}}
+```
+
+The `alias!` methods receives a param to define the alias name.
 
 ## Contributing
 

@@ -5,8 +5,8 @@ describe Waistband::Query do
   let(:index)     { Waistband::Index.new('search') }
   let(:geo_index) { Waistband::Index.new('geo') }
 
-  let(:query)     { Waistband::Query.new('search') }
-  let(:geo_query) { Waistband::Query.new('geo') }
+  let(:query)     { Waistband::Query.new(index) }
+  let(:geo_query) { Waistband::Query.new(geo_index) }
 
   let(:attrs) do
     {
