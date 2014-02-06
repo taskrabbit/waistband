@@ -16,23 +16,23 @@ module Waistband
         attr_accessor :result, :kind
 
         def index_already_exists?
-          kind == "IndexAlreadyExistsException"
+          !!message.match("IndexAlreadyExistsException")
         end
 
         def alias_with_name_exists?
-          kind == "InvalidIndexNameException" && !!message.match("an alias with the same name already exists")
+          !!message.match("InvalidIndexNameException") && !!message.match("an alias with the same name already exists")
         end
 
         def index_missing?
-          kind == "IndexMissingException"
+          !!message.match("IndexMissingException")
         end
 
         def key_missing?
-          kind == "KeyMissing"
+          !!message.match("KeyMissing")
         end
 
         def alias_not_ok?
-          kind == "AliasNotOk"
+          !!message.match("AliasNotOk")
         end
       end
 
