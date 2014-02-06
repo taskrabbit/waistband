@@ -12,14 +12,12 @@ describe Waistband::Configuration do
 
   it "loads indexes config" do
     config.index('search').should be_a Hash
-    config.index('search')['name'].should eql 'search_test'
-    config.index('search')['settings']['index']['number_of_shards'].should eql 4
+    config.index('search')['settings']['index']['number_of_shards'].should eql 1
   end
 
   it "loads multiple indexes config" do
     config.index('events').should be_a Hash
-    config.index('events')['name'].should eql 'events_test'
-    config.index('events')['settings']['index']['number_of_shards'].should eql 4
+    config.index('events')['settings']['index']['number_of_shards'].should eql 1
   end
 
   describe '#servers' do

@@ -46,11 +46,7 @@ module Waistband
       end
 
       def url
-        index.search_url
-      end
-
-      def index
-        Waistband::Index.new(@index)
+        @index.search_url
       end
 
       def execute!

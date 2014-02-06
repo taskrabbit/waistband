@@ -1,75 +1,92 @@
+require 'active_support/core_ext/object/blank'
+require 'active_support/core_ext/hash/keys'
+
 module Waistband
   class Index
 
-    def initialize(index)
-      @index        = index
-      @index_name   = config['name']
-      @stringify    = config['stringify']
-    end
+    delegate  :create!, :create, :destroy!, :destroy,
+              :update_settings!, :update_settings,
+              :delete!, :delete, :read!, :read,
+              :alias, :alias!,
+              :fetch_alias, :mapping, :exists?,
+              :refresh!, :refresh,
+              :search_url,
+              to: :connection
 
-    # create the index
-    def create!
-      connection.create! @index
-    end
+    attr_reader :base_name
 
-    # destroy the index
-    def destroy!
-      connection.destroy! @index
-    end
+    def initialize(index, options = {})
+      options = options.stringify_keys
 
-    def update_settings!
-      connection.update_settings! @index
-    end
+      @index          = index
+      @base_name      = index
+      @stringify      = config['stringify']
 
-    # refresh the index
-    def refresh
-      connection.refresh @index
+      @subs = [options['subs']] if options['subs'].present?
+      @subs = @subs.flatten     if @subs.is_a?(Array)
     end
 
     def store!(key, data)
       # map everything to strings
       if @stringify
         original_data = data
-
-        if data.is_a? Array
-          data = ::Waistband::StringifiedArray.new data
-        elsif data.is_a? Hash
-          data = ::Waistband::StringifiedHash.new_from data
-        end
-
-        data = data.stringify_all if data.respond_to? :stringify_all
+        data = stringify_all data
       end
 
-      result  = connection.put @index, key, data
-      data    = original_data if @stringify
+      result = connection.put key, data
+      data = original_data if @stringify
 
       result
     end
 
-    def delete!(key)
-      connection.delete! @index, key
-    end
-
-    def read(key)
-      connection.read @index, key
-    end
-
     def query(options = {})
-      ::Waistband::Query.new @index, options
+      ::Waistband::Query.new self, options
     end
 
-    def search_url
-      connection.search_url_for_index @index
+    def name
+      @subs ? "#{@index}__#{@subs.join('_')}" : @index
+    end
+
+    def config_name
+      @subs ? "#{base_config_name}__#{@subs.join('_')}" : base_config_name
+    end
+
+    def config_json
+      config.except('name', 'stringify').to_json
+    end
+
+    def base_config_name
+      return config['name'] if config['name']
+      "#{@base_name}_#{env}"
+    end
+
+    def custom_name?
+      !!config['name']
+    end
+
+    def config
+      Waistband.config.index @index
+    end
+
+    def env
+      Waistband.config.env
     end
 
     private
 
-      def connection
-        ::Waistband::Connection.new
+      def stringify_all(data)
+        data = if data.is_a? Array
+          ::Waistband::StringifiedArray.new data
+        elsif data.is_a? Hash
+          ::Waistband::StringifiedHash.new_from data
+        end
+
+        data = data.stringify_all if data.respond_to? :stringify_all
+        data
       end
 
-      def config
-        Waistband.config.index @index
+      def connection
+        ::Waistband::Connection.new self
       end
 
     # /private

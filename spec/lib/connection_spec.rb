@@ -2,24 +2,227 @@ require 'spec_helper'
 
 describe Waistband::Connection do
 
-  let(:connection) { Waistband::Connection.new }
+  let(:connection) { Waistband::Connection.new(index) }
+  let(:search_connection) { Waistband::Connection.new(index_search) }
+  let(:index) { ::Waistband::Index.new('events') }
+  let(:index_search) { ::Waistband::Index.new('search') }
 
   def blacklist_server!
     connection.send(:blacklist!, Waistband.config.servers.first)
   end
 
   it "constructs the settings json" do
-    connection.send(:settings_json, 'events').should eql '{"index":{"number_of_replicas":1}}'
+    connection.send(:settings_json).should eql '{"index":{"number_of_replicas":1}}'
   end
 
   it "constructs the index json" do
-    connection.send(:index_json, 'events').should eql '{"settings":{"index":{"number_of_shards":4,"number_of_replicas":1}},"mappings":{"event":{"_source":{"includes":["*"]}}}}'
+    connection.send(:index_json).should eql '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":1}},"mappings":{"event":{"_source":{"includes":["*"]}}}}'
+  end
+
+  describe 'urls for subindexes' do
+
+    let(:index) { ::Waistband::Index.new('events', subs: %w(2013 01)) }
+    let(:connection) { Waistband::Connection.new(index, orderly: true) }
+
+    describe '#destroy!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('delete', "http://localhost:9200/events_test__2013_01", nil).once
+        connection.destroy!
+      end
+
+    end
+
+    describe '#create!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('post', "http://localhost:9200/events_test__2013_01", index.config_json).once
+        connection.create!
+      end
+
+    end
+
+    describe '#update_settings!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('put', "http://localhost:9200/events_test__2013_01/_settings", connection.send(:settings_json)).once
+        connection.update_settings!
+      end
+
+    end
+
+    describe '#refresh!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('post', "http://localhost:9200/events_test__2013_01/_refresh", {}).once
+        connection.refresh!
+      end
+
+    end
+
+    describe '#read' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('get', "http://localhost:9200/events_test__2013_01/event/my_key", nil).once.and_call_original
+        connection.read 'my_key'
+      end
+
+    end
+
+    describe '#put' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('put', "http://localhost:9200/events_test__2013_01/event/my_key", {oh_yeah: true}.to_json).once.and_call_original
+        connection.put 'my_key', {oh_yeah: true}
+      end
+
+    end
+
+    describe '#delete!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('delete', "http://localhost:9200/events_test__2013_01/event/my_key", nil).once.and_call_original
+        connection.delete 'my_key'
+      end
+
+    end
+
+    describe '#search_url' do
+
+      it "targets the correct url" do
+        connection.search_url.should eql "http://localhost:9200/events_test__2013_01/_search"
+      end
+
+    end
+
+    describe '#alias!' do
+
+      it "targets the correct url with a specific alias_name" do
+        RestClient.should_receive(:send).with('put', "http://localhost:9200/events_test__2013_01/_alias/all_events_test", nil).once.and_call_original
+        connection.alias! 'all_events'
+      end
+
+    end
+
+  end
+
+  describe '#full_alias_name' do
+
+    it "returns the alias name with the env" do
+      connection.full_alias_name('all_events').should eql 'all_events_test'
+    end
+
+    it "if the index has a custom name, the alias name doesn't automatically append the env" do
+      connection.instance_variable_get('@index').stub(:config).and_return({
+        'name' => 'super_custom'
+      })
+      connection.full_alias_name('all_events').should eql 'all_events'
+    end
+
+  end
+
+  describe 'urls' do
+
+    let(:connection) { Waistband::Connection.new(index, orderly: true) }
+
+    describe '#destroy!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('delete', "http://localhost:9200/events_test", nil).once
+        connection.destroy!
+      end
+
+    end
+
+    describe '#create!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('post', "http://localhost:9200/events_test", index.config_json).once
+        connection.create!
+      end
+
+    end
+
+    describe '#update_settings!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('put', "http://localhost:9200/events_test/_settings", connection.send(:settings_json)).once
+        connection.update_settings!
+      end
+
+    end
+
+    describe '#refresh!' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('post', "http://localhost:9200/events_test/_refresh", {}).once
+        connection.refresh!
+      end
+
+    end
+
+    describe '#read' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('get', "http://localhost:9200/events_test/event/my_key", nil).once.and_call_original
+        connection.read 'my_key'
+      end
+
+    end
+
+    describe '#put' do
+
+      it "targets the correct url" do
+        RestClient.should_receive(:send).with('put', "http://localhost:9200/events_test/event/my_key", {oh_yeah: true}.to_json).once.and_call_original
+        connection.put 'my_key', {oh_yeah: true}
+      end
+
+    end
+
+    describe '#delete!' do
+
+      it "targets the correct url" do
+        connection.put 'my_key', {oh_yeah: true}
+
+        RestClient.should_receive(:send).with('delete', "http://localhost:9200/events_test/event/my_key", nil).once.and_call_original
+        connection.delete! 'my_key'
+      end
+
+    end
+
+    describe '#search_url' do
+
+      it "targets the correct url" do
+        connection.search_url.should eql "http://localhost:9200/events_test/_search"
+      end
+
+    end
+
+    describe '#alias!' do
+
+      it "targets the correct url with a specific alias_name" do
+        RestClient.should_receive(:send).with('put', "http://localhost:9200/events_test/_alias/all_events_test", nil).once.and_call_original
+        connection.alias! 'all_events'
+      end
+
+    end
+
+  end
+
+  describe '#alias!' do
+
+    it "creates an alias for the index" do
+      connection.alias! 'all_events'
+      aliases = connection.fetch_alias 'all_events'
+      aliases.should eql({"events_test"=>{"aliases"=>{"all_events_test"=>{}}}})
+    end
+
   end
 
   describe '#execute!' do
 
     it "wraps directly to rest client" do
-      connection = Waistband::Connection.new(orderly: true)
+      connection = Waistband::Connection.new(index, orderly: true)
 
       RestClient.should_receive(:get).with('http://localhost:9200/somekey', nil).once
       connection.send(:execute!, 'get', 'somekey')
@@ -29,7 +232,7 @@ describe Waistband::Connection do
 
       [Timeout::Error, Errno::EHOSTUNREACH, Errno::ECONNREFUSED, Errno::ECONNRESET].each do |exception|
         it "blacklists the server when #{exception}" do
-          connection = Waistband::Connection.new(retry_on_fail: false)
+          connection = Waistband::Connection.new(index, retry_on_fail: false)
 
           RestClient.should_receive(:get).with(kind_of(String), nil).and_raise exception
           connection.send(:execute!, 'get', 'somekey')
@@ -54,8 +257,8 @@ describe Waistband::Connection do
           ]
         )
 
-        connection = Waistband::Connection.new(orderly: true)
-        expect { connection.refresh('events') }.to_not raise_error
+        connection = Waistband::Connection.new(index, orderly: true)
+        expect { connection.refresh }.to_not raise_error
 
         connection.instance_variable_get('@blacklist').should eql ['567890a5ce74182e5cd123e299993ab510c56123']
       end
@@ -67,7 +270,7 @@ describe Waistband::Connection do
         expect {
           connection.send(:execute!, 'get', 'somekey')
         }.to raise_error(
-          Waistband::Connection::NoMoreServers,
+          Waistband::Connection::Error::NoMoreServers,
           "No available servers remain"
         )
       end
@@ -79,23 +282,11 @@ describe Waistband::Connection do
   describe '#relative_url_for_key' do
 
     it "returns the relative url for a key" do
-      url = connection.send(:relative_url_for_key, 'search', 'key123')
+      url = search_connection.send(:relative_url_for_key, 'key123')
       url.should match /^search_test\/search\/key123$/
 
-      url = connection.send(:relative_url_for_key, 'events', '9986')
+      url = connection.send(:relative_url_for_key, '9986')
       url.should match /^events_test\/event\/9986$/
-    end
-
-  end
-
-  describe '#relative_url_for_index' do
-
-    it "returns the url for an index" do
-      url = connection.send(:relative_url_for_index, 'search')
-      url.should match /^search_test$/
-
-      url = connection.send(:relative_url_for_index, 'events')
-      url.should match /^events_test$/
     end
 
   end
@@ -134,7 +325,7 @@ describe Waistband::Connection do
       expect {
         connection.send(:blacklist!, Waistband.config.servers.last)
       }.to raise_error(
-        Waistband::Connection::NoMoreServers,
+        Waistband::Connection::Error::NoMoreServers,
         "No available servers remain"
       )
     end
@@ -188,26 +379,26 @@ describe Waistband::Connection do
 
   describe "storing" do
 
-    let(:index)   { ::Waistband::Index.new('events') }
-    let(:index2)  { ::Waistband::Index.new('search') }
-    let(:attrs)   { {'ok' => {'yeah' => true}} }
-
-    before { IndexHelper.prepare! }
+    let(:attrs)   { {'other_ok' => {'yeah' => true}} }
 
     it "stores data" do
-      connection.put('events', '__test_write', {'ok' => 'yeah'})
+      connection.put('__test_write', {'ok' => 'yeah'})
       index.read('__test_write').should eql({'ok' => 'yeah'})
     end
 
     it "data is indirectly accessible" do
-      connection.put('events', '__test_not_string', attrs)
-      index.read('__test_not_string')[:ok][:yeah].should eql true
+      connection.put('__test_not_string', attrs)
+      index.read('__test_not_string')[:other_ok][:yeah].should eql true
     end
 
     it "deletes data" do
-      connection.put('events', '__test_write', attrs)
-      connection.delete!('events', '__test_write')
+      connection.put('__test_write', attrs)
+      connection.delete!('__test_write')
       index.read('__test_write').should be_nil
+    end
+
+    it "blows up when trying to delete non-existent data" do
+      expect { connection.delete!('__test_write') }.to raise_error
     end
 
     it "returns nil on 404" do
@@ -215,11 +406,11 @@ describe Waistband::Connection do
     end
 
     it "doesn't mix data between two indexes" do
-      connection.put('events', '__test_write',  {'data' => 'index_1'})
-      connection.put('search', '__test_write', {'data' => 'index_2'})
+      connection.put('__test_write',  {'data' => 'index_1'})
+      search_connection.put('__test_write', {'data' => 'index_2'})
 
       index.read('__test_write').should   eql({'data' => 'index_1'})
-      index2.read('__test_write').should  eql({'data' => 'index_2'})
+      index_search.read('__test_write').should  eql({'data' => 'index_2'})
     end
 
   end

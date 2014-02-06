@@ -9,6 +9,7 @@ module Waistband
     include Singleton
 
     attr_accessor :config_dir
+    attr_reader   :env
 
     def initialize
       @yml_config = {}
