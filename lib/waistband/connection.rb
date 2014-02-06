@@ -28,7 +28,7 @@ module Waistband
         end
 
         def key_missing?
-          !!message.match("KeyMissing")
+          !!message.match("KeyMissing") || kind == 'KeyMissing'
         end
 
         def alias_not_ok?
