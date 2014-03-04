@@ -138,7 +138,7 @@ module Waistband
       fetched = execute! 'get', relative_url_for_key(key)
       parsed = JSON.parse(fetched)
 
-      error_with('Key not found', result: parsed, kind: 'KeyMissing') if parsed['exists'] == false
+      error_with('Key not found', result: parsed, kind: 'KeyMissing') if (parsed.keys.include?('exists') && parsed['exists'] == false) || (parsed.keys.include?('found') && parsed['found'] == false)
 
       parsed['_source'].with_indifferent_access
     end
@@ -157,7 +157,7 @@ module Waistband
       fetched = execute! 'delete', relative_url_for_key(key)
       parsed = JSON.parse(fetched)
 
-      error_with('Key not found', result: parsed, kind: 'KeyMissing') if parsed['found'] == false
+      error_with('Key not found', result: parsed, kind: 'KeyMissing') if parsed.keys.include?('found') && parsed['found'] == false
 
       true
     end
