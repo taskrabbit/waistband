@@ -111,7 +111,7 @@ module Waistband
       fetched = execute! 'put', "#{@index.config_name}/_alias/#{alias_name}"
       parsed = JSON.parse(fetched)
 
-      error_with('Alias not OK', result: parsed, kind: 'AliasNotOk') unless parsed.keys.include?('ok') && parsed['ok'] == true
+      error_with('Alias not OK', result: parsed, kind: 'AliasNotOk') if parsed.keys.include?('ok') && parsed['ok'] != true
 
       true
     end
