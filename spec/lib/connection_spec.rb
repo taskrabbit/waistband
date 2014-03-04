@@ -63,6 +63,7 @@ describe Waistband::Connection do
     describe '#read' do
 
       it "targets the correct url" do
+        index.refresh
         RestClient.should_receive(:send).with('get', "http://localhost:9200/events_test__2013_01/event/my_key", nil).once.and_call_original
         connection.read 'my_key'
       end
