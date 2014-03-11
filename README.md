@@ -1,8 +1,8 @@
 # Waistband
 
-Ruby interface to Elastic Search
+Configuration and sensible defaults for ElasticSearch on Ruby.  Handles configuration, index creation, quality of life, etc, of Elastic Search in Ruby.
 
-## Installation
+# Installation
 
 Install ElasticSearch:
 
@@ -20,7 +20,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install waistband
+$ gem install waistband
 
 ## Configuration
 
@@ -202,3 +202,4 @@ The `alias!` methods receives a param to define the alias name.
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+

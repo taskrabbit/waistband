@@ -29,26 +29,24 @@ module Waistband
     end
 
     def method_missing(method_name, *args, &block)
-      return current_server[method_name]  if current_server[method_name]
-      return @yml_config[method_name]     if @yml_config[method_name]
+      return @yml_config[method_name] if @yml_config[method_name]
       super
     end
 
-    def servers
-      @servers ||= @yml_config['servers'].map do |server_name, config|
-        config.merge({
-          '_id' => Digest::SHA1.hexdigest("#{config['host']}:#{config['port']}")
-        })
+    def hosts
+      @hosts ||= @yml_config['servers'].map do |server_name, config|
+        config
       end
     end
 
-    private
-
-      def current_server
-        servers.sample
-      end
-
-    # /private
+    def client
+      Elasticsearch::Client.new(
+              hosts: hosts,
+              randomize_hosts: true,
+              retry_on_failure: retries,
+              reload_on_failure: reload_on_failure
+            )
+    end
 
   end
 end

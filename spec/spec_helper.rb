@@ -22,7 +22,7 @@ RSpec.configure do |config|
   config.around(:each) do |example|
     IndexHelper.create_all
     example.run
-    IndexHelper.destroy_all
+    IndexHelper.delete_all
   end
 
   config.after(:each) do
