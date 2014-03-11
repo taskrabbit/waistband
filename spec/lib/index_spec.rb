@@ -43,9 +43,9 @@ describe Waistband::Index do
 
   it "proxies to the client's search" do
     result = index.search({})
-    expect(result).to be_a Hash
-    expect(result['took']).to be_present
-    expect(result['hits']).to be_a Hash
+    expect(result).to be_a Waistband::SearchResults
+    expect(result.took).to be_present
+    expect(result.hits).to be_an Array
   end
 
   describe "storing" do

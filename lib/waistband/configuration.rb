@@ -17,6 +17,8 @@ module Waistband
     end
 
     def setup
+      self.config_dir = default_config_dir unless config_dir
+
       raise "Please define a valid `config_dir` configuration variable!"  unless config_dir
       raise "Couldn't find configuration directory #{config_dir}"         unless File.exist?(config_dir)
 
@@ -47,6 +49,17 @@ module Waistband
               reload_on_failure: reload_on_failure
             )
     end
+
+    private
+
+      def default_config_dir
+        @default_config_dir ||= begin
+          return nil unless defined?(Rails)
+          File.join(Rails.root, 'config')
+        end
+      end
+
+    # /private
 
   end
 end

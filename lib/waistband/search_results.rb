@@ -1,7 +1,11 @@
 module Waistband
   class SearchResults
 
-    def initialize(search_hash)
+    DEFAULT_PAGE_SIZE = 20
+
+    def initialize(search_hash, options = {})
+      @page = options[:page] || 1
+      @page_size = options[:page_size] || DEFAULT_PAGE_SIZE
       @search_hash = search_hash
     end
 
@@ -10,9 +14,24 @@ module Waistband
       @search_hash['hits']['hits']
     end
 
+    def paginated_hits
+      raise "Kaminari gem not found for pagination" unless defined?(Kaminari)
+      Kaminari.paginate_array(hits, total_count: total_results).page(@page).per(@page_size)
+    end
+
     def total_results
       raise ::Waistband::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
       @search_hash['hits']['total']
+    end
+
+    def method_missing(method_name, *args, &block)
+      return @search_hash[method_name.to_s] if @search_hash.keys.include?(method_name.to_s)
+      super
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      return true if @search_hash.keys.include?(method_name.to_s)
+      super
     end
 
   end

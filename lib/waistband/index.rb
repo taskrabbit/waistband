@@ -108,6 +108,12 @@ module Waistband
     end
 
     def destroy(id, options = {})
+      destroy!(id, options)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      nil
+    end
+
+    def destroy!(id, options = {})
       options = options.with_indifferent_access
       type = options[:type] || default_type_name
 
@@ -119,14 +125,15 @@ module Waistband
     end
 
     def search(body_hash)
-      body_hash = parse_search_body(body_hash)
+      page, page_size = get_page_info body_hash
+      body_hash       = parse_search_body(body_hash)
 
       search_hash = client.search(
         index: config_name,
         body: body_hash
       )
 
-      ::Waistband::SearchResults.new(search_hash)
+      ::Waistband::SearchResults.new(search_hash, page: page, page_size: page_size)
     end
 
     def alias(alias_name)
@@ -154,6 +161,12 @@ module Waistband
     end
 
     private
+
+      def get_page_info(body_hash)
+        page = body_hash[:page]
+        page_size = body_hash[:page_size]
+        [page, page_size]
+      end
 
       def parse_search_body(body_hash)
         body_hash = body_hash.with_indifferent_access
