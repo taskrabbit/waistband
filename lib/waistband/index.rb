@@ -52,12 +52,12 @@ module Waistband
 
     def delete
       delete!
-    rescue ::Waistband::Errors::IndexNotfound => ex
+    rescue ::Waistband::Errors::IndexNotFound => ex
       true
     end
 
     def delete!
-      raise ::Waistband::Errors::IndexNotfound.new("Index not found") unless exists?
+      raise ::Waistband::Errors::IndexNotFound.new("Index not found") unless exists?
       client.indices.delete index: config_name
     end
 
@@ -77,6 +77,17 @@ module Waistband
       )
 
       saved['_id'].present?
+    end
+
+    def find(id, options = {})
+      find!(id, options)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      nil
+    end
+
+    def find!(id, options = {})
+      doc = read!(id, options)
+      doc['_source']
     end
 
     def read(id, options = {})
@@ -108,10 +119,14 @@ module Waistband
     end
 
     def search(body_hash)
-      client.search(
+      body_hash = parse_search_body(body_hash)
+
+      search_hash = client.search(
         index: config_name,
         body: body_hash
       )
+
+      ::Waistband::SearchResults.new(search_hash)
     end
 
     def alias(alias_name)
@@ -139,6 +154,22 @@ module Waistband
     end
 
     private
+
+      def parse_search_body(body_hash)
+        body_hash = body_hash.with_indifferent_access
+
+        page = body_hash.delete(:page)
+        page_size = body_hash.delete(:page_size)
+
+        if page
+          page = page.to_i
+          page_size ||= 20
+          body_hash[:from] = page_size * (page - 1) unless body_hash[:from]
+          body_hash[:size] = page_size              unless body_hash[:size]
+        end
+
+        body_hash
+      end
 
       def full_alias_name(alias_name)
         name = alias_name

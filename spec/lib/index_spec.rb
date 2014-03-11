@@ -24,6 +24,11 @@ describe Waistband::Index do
     index.create!
   end
 
+  it "blows up when trying to delete an index that does not exist" do
+    index.delete!
+    expect { index.delete! }.to raise_error(::Waistband::Errors::IndexNotFound)
+  end
+
   it "updates the index's mappings" do
     index.refresh
     response = index.update_mapping('event')

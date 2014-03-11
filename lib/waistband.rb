@@ -7,6 +7,7 @@ module Waistband
   autoload :StringifiedHash,  "waistband/stringified_hash"
   autoload :Configuration,    "waistband/configuration"
   autoload :Index,            "waistband/index"
+  autoload :SearchResults,    "waistband/search_results"
 
   class << self
 
