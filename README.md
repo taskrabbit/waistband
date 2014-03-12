@@ -164,6 +164,7 @@ results = index.search({
 
 results.hits # => returns a search results object
 results.total_hits # => 28481
+```
 
 For paginating the results, you can use the `#paginated_results` method, which requires the [Kaminari](https://github.com/amatsuda/kaminari), gem.  If you use another gem, you can just override the method, etc.
 
