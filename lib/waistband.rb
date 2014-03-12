@@ -1,17 +1,14 @@
 require "waistband/version"
 
 module Waistband
-  
-  autoload :Configuration,    "waistband/configuration"
-  autoload :Connection,       "waistband/connection"
+
+  autoload :Errors,           "waistband/errors"
   autoload :StringifiedArray, "waistband/stringified_array"
   autoload :StringifiedHash,  "waistband/stringified_hash"
-  autoload :QueryResult,      "waistband/query_result"
-  autoload :QueryHelpers,     "waistband/query_helpers"
-  autoload :Query,            "waistband/query"
+  autoload :Configuration,    "waistband/configuration"
   autoload :Index,            "waistband/index"
-  autoload :QuickError,       "waistband/quick_error"
-  autoload :Model,            "waistband/model"
+  autoload :SearchResults,    "waistband/search_results"
+  autoload :Result,           "waistband/result"
 
   class << self
 
@@ -22,6 +19,10 @@ module Waistband
       config_instance
     end
     alias_method :config, :configure
+
+    def client
+      ::Waistband.config.client
+    end
 
   end
 

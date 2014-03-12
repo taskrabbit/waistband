@@ -5,38 +5,35 @@ describe Waistband::Configuration do
   let(:config) { Waistband.config }
 
   it "loads config yml" do
-    config.host.should match /http\:\/\//
-    config.port.should eql 9200
-    config.timeout.should eql 2
+    expect(config.timeout).to eql 2
   end
 
   it "loads indexes config" do
-    config.index('search').should be_a Hash
-    config.index('search')['settings']['index']['number_of_shards'].should eql 1
+    expect(config.index('search')).to be_a Hash
+    expect(config.index('search')['settings']['index']['number_of_shards']).to eql 1
   end
 
   it "loads multiple indexes config" do
-    config.index('events').should be_a Hash
-    config.index('events')['settings']['index']['number_of_shards'].should eql 1
+    expect(config.index('events')).to be_a Hash
+    expect(config.index('events')['settings']['index']['number_of_shards']).to eql 1
   end
 
-  describe '#servers' do
+  it "proxies the client" do
+    expect(::Waistband.config.client).to be_a ::Elasticsearch::Transport::Client
+    expect(::Waistband.client).to be_a ::Elasticsearch::Transport::Client
+  end
+
+  describe '#hosts' do
 
     it "returns array of all available servers' configs" do
-      config.servers.should be_an Array
-      config.servers.size.should eql 2
+      expect(config.hosts).to be_an Array
+      expect(config.hosts.size).to eql 2
 
-      config.servers.each_with_index do |server, i|
-        server['host'].should match /http\:\/\//
-        server['port'].should eql 9200
-
-        server['_id'].should be_present
-        server['_id'].length.should eql 40
+      config.hosts.each_with_index do |server, i|
+        expect(server['host']).to match /127\.0\.0\.1|localhost/
+        expect(server['port']).to eql 9200
+        expect(server['protocol']).to eql 'http'
       end
-    end
-
-    it "servers ids should be unique" do
-      config.servers[0]['_id'].should_not eql config.servers[1]['_id']
     end
 
   end

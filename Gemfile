@@ -5,5 +5,5 @@ gemspec
 
 gem 'rspec'
 gem 'debugger'
-gem 'kaminari'
+gem 'kaminari', require: false
 gem 'timecop'

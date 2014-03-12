@@ -17,6 +17,8 @@ module Waistband
     end
 
     def setup
+      self.config_dir = default_config_dir unless config_dir
+
       raise "Please define a valid `config_dir` configuration variable!"  unless config_dir
       raise "Couldn't find configuration directory #{config_dir}"         unless File.exist?(config_dir)
 
@@ -29,23 +31,32 @@ module Waistband
     end
 
     def method_missing(method_name, *args, &block)
-      return current_server[method_name]  if current_server[method_name]
-      return @yml_config[method_name]     if @yml_config[method_name]
+      return @yml_config[method_name] if @yml_config[method_name]
       super
     end
 
-    def servers
-      @servers ||= @yml_config['servers'].map do |server_name, config|
-        config.merge({
-          '_id' => Digest::SHA1.hexdigest("#{config['host']}:#{config['port']}")
-        })
+    def hosts
+      @hosts ||= @yml_config['servers'].map do |server_name, config|
+        config
       end
+    end
+
+    def client
+      Elasticsearch::Client.new(
+              hosts: hosts,
+              randomize_hosts: true,
+              retry_on_failure: retries,
+              reload_on_failure: reload_on_failure
+            )
     end
 
     private
 
-      def current_server
-        servers.sample
+      def default_config_dir
+        @default_config_dir ||= begin
+          return nil unless defined?(Rails)
+          File.join(Rails.root, 'config')
+        end
       end
 
     # /private

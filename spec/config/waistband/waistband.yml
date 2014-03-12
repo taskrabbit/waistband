@@ -1,12 +1,16 @@
 development: &DEV
   timeout: 2
+  retries: 5
+  reload_on_failure: true
   servers:
     server1:
-      host: http://localhost
+      host: localhost
       port: 9200
+      protocol: http
     server2:
-      host: http://127.0.0.1
+      host: 127.0.0.1
       port: 9200
+      protocol: http
 
 test:
   <<: *DEV

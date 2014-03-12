@@ -7,66 +7,93 @@ describe Waistband::Index do
   let(:attrs)   { {'ok' => {'yeah' => true}} }
 
   it "initializes values" do
-    index.instance_variable_get('@stringify').should  eql true
+    expect(index.instance_variable_get('@stringify')).to eql true
   end
 
   it "creates the index" do
-    index.destroy!
-    expect{ index.refresh! }.to raise_error(Waistband::Connection::Error::Resquest)
+    index.delete!
+    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
 
     index.create!
-    expect{ index.refresh! }.to_not raise_error
+    expect{ index.refresh }.to_not raise_error
   end
 
-  it "destroys the index" do
-    index.destroy!
-    expect{ index.refresh! }.to raise_error(Waistband::Connection::Error::Resquest)
+  it "deletes the index" do
+    index.delete!
+    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
     index.create!
+  end
+
+  it "blows up when trying to delete an index that does not exist" do
+    index.delete!
+    expect { index.delete! }.to raise_error(::Waistband::Errors::IndexNotFound)
+  end
+
+  it "updates the index's mappings" do
+    index.refresh
+    response = index.update_mapping('event')
+    expect(response['acknowledged']).to be_true
   end
 
   it "updates the index's settings" do
     index.refresh
-    response = JSON.parse(index.update_settings!)
-    response['ok'].should be_true
+    response = index.update_settings
+    expect(response['acknowledged']).to be_true
   end
 
-  it "proxies to a query" do
-    index.query.should be_a Waistband::Query
+  it "proxies to the client's search" do
+    result = index.search({})
+    expect(result).to be_a Waistband::SearchResults
+    expect(result.took).to be_present
+    expect(result.hits).to be_an Array
   end
 
   describe "storing" do
 
     it "stores data" do
-      index.store!('__test_write', {'ok' => 'yeah'})
-      index.read('__test_write').should eql({'ok' => 'yeah'})
+      expect(index.save('__test_write', {'ok' => 'yeah'})).to be_true
+      expect(index.read('__test_write')).to eql({
+        '_id' => '__test_write',
+        '_index' => 'events_test',
+        '_source' => {'ok' => 'yeah'},
+        '_type' => 'event',
+        '_version' => 1,
+        'found' => true
+      })
     end
 
     it "data is stringified" do
-      index.store!('__test_write', attrs)
-      index.read('__test_write').should eql({"ok"=>"{\"yeah\"=>true}"})
+      index.save('__test_write', attrs)
+      expect(index.read('__test_write')[:_source]).to eql({"ok"=>"{\"yeah\"=>true}"})
     end
 
     it "data is indirectly accessible when not stringified" do
-      index2.store!('__test_not_string', attrs)
-      index2.read('__test_not_string')[:ok][:yeah].should eql true
+      index2.save('__test_not_string', attrs)
+      expect(index2.read('__test_not_string')[:_source][:ok][:yeah]).to eql true
     end
 
     it "deletes data" do
-      index.store!('__test_write', attrs)
-      index.delete!('__test_write')
-      index.read('__test_write').should be_nil
+      index.save('__test_write', attrs)
+      index.destroy('__test_write')
+      expect(index.read('__test_write')).to be_nil
     end
 
     it "returns nil on 404" do
-      index.read('__not_here').should be_nil
+      expect(index.read('__not_here')).to be_nil
+    end
+
+    it "blows up on 404 when using the bang method" do
+      expect {
+        index.read!('__not_here')
+      }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
     end
 
     it "doesn't mix data between two indexes" do
-      index.store!('__test_write',  {'data' => 'index_1'})
-      index2.store!('__test_write', {'data' => 'index_2'})
+      index.save('__test_write',  {'data' => 'index_1'})
+      index2.save('__test_write', {'data' => 'index_2'})
 
-      index.read('__test_write').should   eql({'data' => 'index_1'})
-      index2.read('__test_write').should  eql({'data' => 'index_2'})
+      expect(index.read('__test_write')[:_source]).to   eql({'data' => 'index_1'})
+      expect(index2.read('__test_write')[:_source]).to  eql({'data' => 'index_2'})
     end
 
   end
@@ -76,26 +103,24 @@ describe Waistband::Index do
     let(:sharded_index) { Waistband::Index.new('events', subs: %w(2013 01)) }
 
     it "permits subbing the index" do
-      sharded_index.name.should eql 'events__2013_01'
-      sharded_index.config_name.should eql 'events_test__2013_01'
+      expect(sharded_index.send(:config_name)).to eql 'events_test__2013_01'
     end
 
     it "permits sharding into singles" do
       index = Waistband::Index.new 'events', subs: '2013'
-      index.name.should eql 'events__2013'
-      index.config_name.should eql 'events_test__2013'
+      expect(index.send(:config_name)).to eql 'events_test__2013'
     end
 
     it "retains the same options from the parent index config" do
       config = sharded_index.send(:config)
 
-      sharded_index.base_config_name.should eql 'events_test'
-      config['stringify'].should be_true
-      config['settings'].should be_present
+      expect(sharded_index.send(:base_config_name)).to eql 'events_test'
+      expect(config['stringify']).to be_true
+      expect(config['settings']).to be_present
     end
 
     it "creates the sharded index with the same mappings as the parent" do
-      sharded_index.destroy
+      sharded_index.delete!
 
       expect {
         sharded_index.create!
@@ -106,7 +131,7 @@ describe Waistband::Index do
 
       it "gets a default name that makes sense for the index when not defined" do
         index = Waistband::Index.new 'events_no_name', subs: %w(2013 01)
-        index.config_name.should eql 'events_no_name_test__2013_01'
+        expect(index.send(:config_name)).to eql 'events_no_name_test__2013_01'
       end
 
     end
@@ -117,7 +142,22 @@ describe Waistband::Index do
 
     it "gets a default name that makes sense for the index when not defined" do
       index = Waistband::Index.new 'events_no_name'
-      index.base_config_name.should eql 'events_no_name_test'
+      expect(index.send(:base_config_name)).to eql 'events_no_name_test'
+    end
+
+  end
+
+  describe 'aliases' do
+
+    it "returns the alias name with the env" do
+      expect(index.send(:full_alias_name, 'all_events')).to eql 'all_events_test'
+    end
+
+    it "if the index has a custom name, the alias name doesn't automatically append the env" do
+      index.stub(:config).and_return({
+        'name' => 'super_custom'
+      })
+      expect(index.send(:full_alias_name, 'all_events')).to eql 'all_events'
     end
 
   end

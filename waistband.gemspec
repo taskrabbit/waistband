@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Waistband::VERSION
   spec.authors       = ["David Jairala"]
   spec.email         = ["davidjairala@gmail.com"]
-  spec.description   = %q{Ruby interface to Elastic Search}
-  spec.summary       = %q{Elastic Search all the things!}
+  spec.description   = %q{Handles configuration, index creation, quality of life, etc, of Elastic Search in Ruby}
+  spec.summary       = %q{Configuration and sensible defaults for ElasticSearch on Ruby}
   spec.homepage      = "https://github.com/taskrabbit/waistband"
   spec.license       = "MIT"
 
@@ -18,10 +18,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 1.9.3'
-
   spec.add_dependency 'activesupport',  '>= 3.0.0'
-  spec.add_dependency 'rest-client',    '~> 1.6.7'
+  spec.add_dependency 'elasticsearch',  '>= 1.0.0'
   spec.add_dependency 'json',           '~> 1.8.0'
 
   spec.add_development_dependency "bundler", "~> 1.3"
