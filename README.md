@@ -65,8 +65,8 @@ You'll need a separate config file for each index you use, containing the index 
 development:
     stringify: false
     settings:
-    index:
-        number_of_shards: 4
+        index:
+            number_of_shards: 4
     mappings:
         event:
             _source:
