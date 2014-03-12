@@ -64,14 +64,14 @@ module Waistband
     def save(*args)
       body_hash = args.extract_options!
       id = args.first
-      type = body_hash.delete(:type) || default_type_name
+      _type = body_hash.delete(:_type) || default_type_name
 
       # map everything to strings if need be
       body_hash = stringify_all(body_hash) if @stringify
 
       saved = client.index(
         index: config_name,
-        type: type,
+        type: _type,
         id: id,
         body: body_hash
       )
