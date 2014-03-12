@@ -14,7 +14,7 @@ describe Waistband::Configuration do
   end
 
   it "loads multiple indexes config" do
-    config.index('events').should be_a Hash
+    expect(config.index('events')).to be_a Hash
     expect(config.index('events')['settings']['index']['number_of_shards']).to eql 1
   end
 

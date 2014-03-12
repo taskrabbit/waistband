@@ -1,3 +1,5 @@
+require 'waistband/result'
+
 module Waistband
   class SearchResults
 
@@ -14,9 +16,22 @@ module Waistband
       @search_hash['hits']['hits']
     end
 
+    def results
+      raise ::Waistband::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
+
+      hits.map do |hit|
+        ::Waistband::Result.new(hit)
+      end
+    end
+
     def paginated_hits
       raise "Kaminari gem not found for pagination" unless defined?(Kaminari)
       Kaminari.paginate_array(hits, total_count: total_results).page(@page).per(@page_size)
+    end
+
+    def paginated_results
+      raise "Kaminari gem not found for pagination" unless defined?(Kaminari)
+      Kaminari.paginate_array(results, total_count: total_results).page(@page).per(@page_size)
     end
 
     def total_results

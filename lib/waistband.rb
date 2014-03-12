@@ -8,6 +8,7 @@ module Waistband
   autoload :Configuration,    "waistband/configuration"
   autoload :Index,            "waistband/index"
   autoload :SearchResults,    "waistband/search_results"
+  autoload :Result,           "waistband/result"
 
   class << self
 

@@ -169,6 +169,25 @@ For paginating the results, you can use the `#paginated_results` method, which r
 
 For more information and extra methods, take a peek into the class docs.
 
+Also, for convenience, the gem provides the `Result` class, which just provides some quality-of-life methods for working with search result hashes or their inner `_source` hashes, for example:
+
+```ruby
+search = index.search({
+    query: {
+        term: { hidden: false }
+    }
+})
+results = search.results
+result = result.first
+
+result._id # => '123123'
+result._type # => 'search_result'
+result._index # => 'search'
+result.task_id # => 991122 -- note that this is a method missing interface directly either to the search result hash, or to the _source sub-hash
+```
+
+The `Result` class is directly exposed via two methods in the `SearchResults` class: `#results` and `#paginated_results`.  You can use `#paginated_results` if you're using Kaminari for pagination and wish to use the awesomeness it provides.
+
 ### Index Aliasing
 
 Sometimes it can be useful to sub-divide your index into smaller indexes based on dates or other partitioning schemes.  To do this, the `Index` class exposes the `subs` option on instantiation:
