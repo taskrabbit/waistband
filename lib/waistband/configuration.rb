@@ -46,7 +46,13 @@ module Waistband
               hosts: hosts,
               randomize_hosts: true,
               retry_on_failure: retries,
-              reload_on_failure: reload_on_failure
+              reload_on_failure: reload_on_failure,
+              transport_options: {
+                request: {
+                  open_timeout: @yml_config['timeout'],
+                  timeout: @yml_config['timeout']
+                }
+              }
             )
     end
 
