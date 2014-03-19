@@ -24,6 +24,7 @@ module Waistband
 
       @env        ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
       @yml_config   = YAML.load_file("#{config_dir}/waistband.yml")[@env].with_indifferent_access
+      @adapter      = @yml_config.delete('adapter')
     end
 
     def index(name)
@@ -42,18 +43,21 @@ module Waistband
     end
 
     def client
-      Elasticsearch::Client.new(
-              hosts: hosts,
-              randomize_hosts: true,
-              retry_on_failure: retries,
-              reload_on_failure: reload_on_failure,
-              transport_options: {
-                request: {
-                  open_timeout: @yml_config['timeout'],
-                  timeout: @yml_config['timeout']
-                }
-              }
-            )
+      client_hash = {
+        adapter: @adapter,
+        hosts: hosts,
+        randomize_hosts: true,
+        retry_on_failure: retries,
+        reload_on_failure: reload_on_failure,
+        transport_options: {
+          request: {
+            open_timeout: @yml_config['timeout'],
+            timeout: @yml_config['timeout']
+          }
+        }
+      }
+
+      Elasticsearch::Client.new client_hash
     end
 
     private

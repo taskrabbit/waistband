@@ -23,6 +23,17 @@ describe Waistband::Configuration do
     expect(::Waistband.client).to be_a ::Elasticsearch::Transport::Client
   end
 
+  it "permits passing in an adapter to use to the client" do
+    original_config = YAML.load_file(File.join(::Waistband.config.config_dir, 'waistband.yml'))['test']
+
+    expect(::Waistband.config.instance_variable_get('@adapter')).to be_nil
+
+    YAML.stub(:load_file).and_return({'test' => original_config.merge({'adapter' => :net_http})})
+    ::Waistband.config.setup
+    expect(::Waistband.config.instance_variable_get('@adapter')).to eql :net_http
+    expect(::Waistband.client.transport.options[:adapter]).to eql :net_http
+  end
+
   describe '#hosts' do
 
     it "returns array of all available servers' configs" do
