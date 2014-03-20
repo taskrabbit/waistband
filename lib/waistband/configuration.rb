@@ -9,6 +9,7 @@ module Waistband
     include Singleton
 
     attr_accessor :config_dir
+    attr_writer   :timeout
     attr_reader   :env
 
     def initialize
@@ -51,7 +52,7 @@ module Waistband
         reload_on_failure: reload_on_failure,
         transport_options: {
           request: {
-            open_timeout: @yml_config['timeout'],
+            open_timeout: timeout,
             timeout: @yml_config['timeout']
           }
         }
@@ -60,7 +61,16 @@ module Waistband
       Elasticsearch::Client.new client_hash
     end
 
+    def reset_timeout
+      remove_instance_variable '@timeout'
+    end
+
     private
+
+      def timeout
+        return @timeout if defined? @timeout
+        @yml_config['timeout']
+      end
 
       def default_config_dir
         @default_config_dir ||= begin

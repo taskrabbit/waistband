@@ -34,6 +34,14 @@ describe Waistband::Configuration do
     expect(::Waistband.client.transport.options[:adapter]).to eql :net_http
   end
 
+  it "permits changing the timeout on command" do
+    expect(::Waistband.config.send(:timeout)).to eql 2
+    ::Waistband.config.timeout = 10
+    expect(::Waistband.config.send(:timeout)).to eql 10
+    ::Waistband.config.reset_timeout
+    expect(::Waistband.config.send(:timeout)).to eql 2
+  end
+
   describe '#hosts' do
 
     it "returns array of all available servers' configs" do
