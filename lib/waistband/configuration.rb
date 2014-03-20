@@ -53,7 +53,7 @@ module Waistband
         transport_options: {
           request: {
             open_timeout: timeout,
-            timeout: @yml_config['timeout']
+            timeout: timeout
           }
         }
       }
