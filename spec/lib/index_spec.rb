@@ -160,6 +160,12 @@ describe Waistband::Index do
       expect(index.send(:full_alias_name, 'all_events')).to eql 'all_events'
     end
 
+    it "creates aliases" do
+      expect(index.alias_exists?('events_alias_yo')).to be_false
+      index.alias 'events_alias_yo'
+      expect(index.alias_exists?('events_alias_yo')).to be_true
+    end
+
   end
 
 end

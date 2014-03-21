@@ -147,7 +147,7 @@ module Waistband
 
     def alias_exists?(alias_name)
       alias_name = full_alias_name alias_name
-      client.indices.alias_exists?(
+      client.indices.exists_alias(
         index: config_name,
         name: alias_name
       )
