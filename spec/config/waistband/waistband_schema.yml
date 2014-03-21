@@ -1,0 +1,9 @@
+test:
+  aliases:
+    tasks:
+      - tasks_closed
+      - tasks_opened
+  indices:
+    - events
+    - search
+    - geo
