@@ -175,7 +175,8 @@ module Waistband
         page = body_hash.delete(:page)
         page_size = body_hash.delete(:page_size)
 
-        if page
+        if page || page_size
+          page ||= 1
           page = page.to_i
           page_size ||= 20
           body_hash[:from] = page_size * (page - 1) unless body_hash[:from]

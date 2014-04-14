@@ -98,6 +98,22 @@ describe Waistband::Index do
 
   end
 
+  describe 'paginating search results' do
+
+    it "permits paginating" do
+      results = index.search(page: 5, page_size: 15)
+      expect(results.instance_variable_get('@page')).to eql 5
+      expect(results.instance_variable_get('@page_size')).to eql 15
+    end
+
+    it "permits passing in page_size without page" do
+      results = index.search(page_size: 999)
+      expect(results.instance_variable_get('@page')).to eql 1
+      expect(results.instance_variable_get('@page_size')).to eql 999
+    end
+
+  end
+
   describe 'subindexes' do
 
     let(:sharded_index) { Waistband::Index.new('events', subs: %w(2013 01)) }
