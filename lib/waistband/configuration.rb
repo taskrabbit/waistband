@@ -23,13 +23,24 @@ module Waistband
       raise "Please define a valid `config_dir` configuration variable!"  unless config_dir
       raise "Couldn't find configuration directory #{config_dir}"         unless File.exist?(config_dir)
 
-      @env        ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
-      @yml_config   = YAML.load_file("#{config_dir}/waistband.yml")[@env].with_indifferent_access
+      @env ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      if defined?(ERB)
+        yml = YAML.load(ERB.new(File.read("#{config_dir}/waistband.yml")).result)
+      else
+        yml = YAML.load_file("#{config_dir}/waistband.yml")
+      end
+      @yml_config   = yml[@env].with_indifferent_access
       @adapter      = @yml_config.delete('adapter')
     end
 
     def index(name)
-      @indexes[name] ||= YAML.load_file("#{config_dir}/waistband_#{name}.yml")[@env].with_indifferent_access
+      return @indexes[name] if @indexes[name]
+      if defined?(ERB)
+        yml = YAML.load(ERB.new(File.read("#{config_dir}/waistband_#{name}.yml")).result)
+      else
+        yml = YAML.load_file("#{config_dir}/waistband_#{name}.yml")
+      end
+      @indexes[name] = yml[@env].with_indifferent_access
     end
 
     def method_missing(method_name, *args, &block)
