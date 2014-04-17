@@ -1,6 +1,7 @@
 require 'active_support/core_ext/hash/keys'
 require 'active_support/core_ext/array/extract_options'
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/hash/indifferent_access'
 require 'elasticsearch'
 
 module Waistband
@@ -48,18 +49,22 @@ module Waistband
 
     def create!
       raise ::Waistband::Errors::IndexExists.new("Index already exists") if exists?
-      client.indices.create index: config_name, body: config.except('name', 'stringify')
+      response = client.indices.create index: config_name, body: config.except('name', 'stringify')
+      parse_response response
     end
 
     def delete
       delete!
+      true
     rescue ::Waistband::Errors::IndexNotFound => ex
       true
     end
 
     def delete!
       raise ::Waistband::Errors::IndexNotFound.new("Index not found") unless exists?
-      client.indices.delete index: config_name
+      response = client.indices.delete index: config_name
+
+      parse_response response
     end
 
     def save(*args)
@@ -137,7 +142,7 @@ module Waistband
       ::Waistband::SearchResults.new(search_hash, page: page, page_size: page_size)
     end
 
-    def alias(alias_name)
+    def alias!(alias_name)
       alias_name = full_alias_name alias_name
       client.indices.put_alias(
         index: config_name,
@@ -145,12 +150,34 @@ module Waistband
       )
     end
 
+    def alias(alias_name)
+      alias!(alias_name)
+    rescue  Elasticsearch::Transport::Transport::Errors::BadRequest => ex
+      raise ex unless ex.message.match "an index exists with the same name as the alias"
+      true
+    end
+
     def alias_exists?(alias_name)
       alias_name = full_alias_name alias_name
-      client.indices.exists_alias(
+      response = client.indices.exists_alias(
         index: config_name,
         name: alias_name
       )
+      parse_response response
+    end
+
+    def get_alias!(alias_name)
+      alias_name = full_alias_name alias_name
+      response = client.indices.get_alias(
+        name: alias_name
+      )
+      response.keys
+    end
+
+    def get_alias(alias_name)
+      get_alias!(alias_name)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
+      {}
     end
 
     def config
@@ -161,7 +188,17 @@ module Waistband
       @client ||= ::Waistband.config.client
     end
 
+    def config_name
+      @subs ? "#{base_config_name}__#{@subs.join('_')}" : base_config_name
+    end
+
     private
+
+      def parse_response(response)
+        return response['acknowledged'] if response.keys.include?('acknowledged')
+        return response['ok']           if response.keys.include?('ok')
+        true
+      end
 
       def get_page_info(body_hash)
         page = body_hash[:page]
@@ -187,7 +224,7 @@ module Waistband
       end
 
       def full_alias_name(alias_name)
-        name = alias_name
+        name = alias_name.dup
         name << "_#{::Waistband.config.env}" unless custom_name?
         name
       end
@@ -214,10 +251,6 @@ module Waistband
       def settings
         settings = config['settings']['index'].except('number_of_shards')
         {index: settings}
-      end
-
-      def config_name
-        @subs ? "#{base_config_name}__#{@subs.join('_')}" : base_config_name
       end
 
       def base_config_name

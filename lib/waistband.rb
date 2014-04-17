@@ -3,6 +3,7 @@ require "waistband/version"
 module Waistband
 
   autoload :Errors,           "waistband/errors"
+  autoload :Migrator,         "waistband/migrator"
   autoload :StringifiedArray, "waistband/stringified_array"
   autoload :StringifiedHash,  "waistband/stringified_hash"
   autoload :Configuration,    "waistband/configuration"
