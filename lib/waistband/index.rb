@@ -65,7 +65,7 @@ module Waistband
     def save(*args)
       body_hash = args.extract_options!
       id = args.first
-      _type = body_hash.delete(:_type) || default_type_name
+      _type = body_hash.delete(:_type) || body_hash.delete('_type') || default_type_name
 
       # map everything to strings if need be
       body_hash = stringify_all(body_hash) if @stringify
@@ -99,7 +99,7 @@ module Waistband
 
     def read!(id, options = {})
       options = options.with_indifferent_access
-      type = options[:type] || default_type_name
+      type = options[:_type] || default_type_name
 
       client.get(
         index: config_name,
@@ -116,7 +116,7 @@ module Waistband
 
     def destroy!(id, options = {})
       options = options.with_indifferent_access
-      type = options[:type] || default_type_name
+      type = options[:_type] || default_type_name
 
       client.delete(
         index: config_name,
