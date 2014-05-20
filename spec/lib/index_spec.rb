@@ -116,38 +116,73 @@ describe Waistband::Index do
 
   describe 'subindexes' do
 
-    let(:sharded_index) { Waistband::Index.new('events', subs: %w(2013 01)) }
+    describe 'version option' do
 
-    it "permits subbing the index" do
-      expect(sharded_index.send(:config_name)).to eql 'events_test__2013_01'
+      let(:sharded_index) { Waistband::Index.new('events', version: 1) }
+
+      it 'behaves exactly like a subs specified subindex' do
+        expect(sharded_index.send(:config_name)).to eql 'events_test__version_1'
+        expect(sharded_index.instance_variable_get('@version')).to eql 1
+      end
+
+      it "retains the same options from the parent index config" do
+        config = sharded_index.send(:config)
+
+        expect(sharded_index.send(:base_config_name)).to eql 'events_test'
+        expect(config['stringify']).to be_true
+        expect(config['settings']).to be_present
+      end
+
+      it "creates the sharded index with the same mappings as the parent" do
+        sharded_index.delete
+
+        expect(Waistband::Index.new('events', version: 1).exists?).to be_false
+
+        expect {
+          sharded_index.create!
+        }.to_not raise_error
+
+        expect(Waistband::Index.new('events', version: 1).exists?).to be_true
+      end
+
     end
 
-    it "permits sharding into singles" do
-      index = Waistband::Index.new 'events', subs: '2013'
-      expect(index.send(:config_name)).to eql 'events_test__2013'
-    end
+    describe 'subs option' do
 
-    it "retains the same options from the parent index config" do
-      config = sharded_index.send(:config)
+      let(:sharded_index) { Waistband::Index.new('events', subs: %w(2013 01)) }
 
-      expect(sharded_index.send(:base_config_name)).to eql 'events_test'
-      expect(config['stringify']).to be_true
-      expect(config['settings']).to be_present
-    end
+      it "permits subbing the index" do
+        expect(sharded_index.send(:config_name)).to eql 'events_test__2013_01'
+      end
 
-    it "creates the sharded index with the same mappings as the parent" do
-      sharded_index.delete!
+      it "permits sharding into singles" do
+        index = Waistband::Index.new 'events', subs: '2013'
+        expect(index.send(:config_name)).to eql 'events_test__2013'
+      end
 
-      expect {
-        sharded_index.create!
-      }.to_not raise_error
-    end
+      it "retains the same options from the parent index config" do
+        config = sharded_index.send(:config)
 
-    describe 'no configged index name' do
+        expect(sharded_index.send(:base_config_name)).to eql 'events_test'
+        expect(config['stringify']).to be_true
+        expect(config['settings']).to be_present
+      end
 
-      it "gets a default name that makes sense for the index when not defined" do
-        index = Waistband::Index.new 'events_no_name', subs: %w(2013 01)
-        expect(index.send(:config_name)).to eql 'events_no_name_test__2013_01'
+      it "creates the sharded index with the same mappings as the parent" do
+        sharded_index.delete
+
+        expect {
+          sharded_index.create!
+        }.to_not raise_error
+      end
+
+      describe 'no configged index name' do
+
+        it "gets a default name that makes sense for the index when not defined" do
+          index = Waistband::Index.new 'events_no_name', subs: %w(2013 01)
+          expect(index.send(:config_name)).to eql 'events_no_name_test__2013_01'
+        end
+
       end
 
     end

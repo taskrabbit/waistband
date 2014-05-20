@@ -12,9 +12,17 @@ module Waistband
       @index_name = index_name
       @stringify = config['stringify']
 
-      # alias subs
-      @subs = [options['subs']] if options['subs'].present?
-      @subs = @subs.flatten     if @subs.is_a?(Array)
+      # subindexes checks
+      if options['version'].present?
+        # version
+        @version  = options['version']
+        @subs     = ['version', @version]
+      elsif options['subs'].present?
+        # subs
+        @subs = [options['subs']] if options['subs'].present?
+        @subs = @subs.flatten     if @subs.is_a?(Array)
+      end
+
     end
 
     def exists?

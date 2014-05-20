@@ -200,6 +200,13 @@ index.create!
 
 This creates the index `events__2013_01`, which in your application logic you could design to store all event data for Jan 2013.  You'd do the same for Feb, etc., and when you no longer need one of the older ones, you could delete just that sub-index, instead of things getting more complicated.
 
+We've also found quite a bit of usefulness in using index versioning, so you can add/remove fields to your object without much worry.  Waistband accomodates this pattern as follows:
+
+```ruby
+index = Waistband::Index.new('events', version: 1)
+index.create!
+```
+
 ### Aliasing
 
 Part of subbing is gonna be creating the correct aliases that group up your sub-indexes.
@@ -211,7 +218,7 @@ index.alias('my_super_events_alias') # => true
 index.alias_exists?('my_super_events_alias') # => true
 ```
 
-The `alias` methods receives a param to define the alias name.
+The `alias` methods receives a param to define the alias name.  The same pattern can be used when using index versions.
 
 ## Contributing
 
