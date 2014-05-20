@@ -112,6 +112,41 @@ describe Waistband::Index do
       expect(results.instance_variable_get('@page_size')).to eql 999
     end
 
+    describe 'with results' do
+
+      before do
+        index.delete
+        index.create
+        index.refresh
+
+        index.save('__test_write1',  {'data' => 'index_1'})
+        index.save('__test_write2',  {'data' => 'index_2'})
+        index.save('__test_write3',  {'data' => 'index_3'})
+        index.save('__test_write4',  {'data' => 'index_4'})
+        index.refresh
+      end
+
+      it "respects paginating when fetching hits" do
+        query = index.search(page: 1, page_size: 10)
+        expect(query.hits.size).to eql 4
+
+        query = index.search(page: 2, page_size: 10)
+        expect(query.hits.size).to eql 0
+
+        query = index.search(page: 1, page_size: 2)
+        expect(query.hits.size).to eql 2
+      end
+
+      it "paginates when not passing in a page number" do
+        query = index.search(page_size: 10)
+        expect(query.hits.size).to eql 4
+
+        query = index.search(page_size: 2)
+        expect(query.hits.size).to eql 2
+      end
+
+    end
+
   end
 
   describe 'subindexes' do
