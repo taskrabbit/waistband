@@ -196,9 +196,11 @@ module Waistband
       end
 
       def full_alias_name(alias_name)
-        name = alias_name
-        name << "_#{::Waistband.config.env}" unless custom_name?
-        name
+        unless custom_name?
+          "#{alias_name}_#{::Waistband.config.env}"
+        else
+          alias_name
+        end
       end
 
       def custom_name?

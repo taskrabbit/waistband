@@ -239,6 +239,12 @@ describe Waistband::Index do
       expect(index.send(:full_alias_name, 'all_events')).to eql 'all_events_test'
     end
 
+    it "invoking full_alias_name doesn't mess with @index_name" do
+      expect(index.instance_variable_get('@index_name')).to eql 'events'
+      expect(index.send(:full_alias_name, 'all_events')).to eql 'all_events_test'
+      expect(index.instance_variable_get('@index_name')).to eql 'events'
+    end
+
     it "if the index has a custom name, the alias name doesn't automatically append the env" do
       index.stub(:config).and_return({
         'name' => 'super_custom'
@@ -250,6 +256,19 @@ describe Waistband::Index do
       expect(index.alias_exists?('events_alias_yo')).to be_false
       index.alias 'events_alias_yo'
       expect(index.alias_exists?('events_alias_yo')).to be_true
+    end
+
+    describe 'versioning' do
+
+      it "invoking full_alias_name doesn't mess with @index_name" do
+        index = Waistband::Index.new('events', version: 1)
+        index.delete
+        index.create
+        index.alias('aliased_events')
+
+        expect(index.instance_variable_get('@index_name')).to eql 'events'
+      end
+
     end
 
   end
