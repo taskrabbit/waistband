@@ -38,4 +38,14 @@ describe ::Waistband::Result do
     expect(result._message).to eql 'true'
   end
 
+  it "provides to_hash method for jbuilder compatibility" do
+    expect(result.to_hash).to eql({
+      "bus_event_type" => "task_opened",
+      "timeline_event" => "true",
+      "_message" => "true"
+    })
+
+    expect(result.to_hash).to eql(result._source)
+  end
+
 end
