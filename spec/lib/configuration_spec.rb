@@ -28,7 +28,7 @@ describe Waistband::Configuration do
 
     expect(::Waistband.config.instance_variable_get('@adapter')).to be_nil
 
-    YAML.stub(:load).and_return({'test' => original_config.merge({'adapter' => :net_http})})
+    expect(YAML).to receive(:load).and_return({'test' => original_config.merge({'adapter' => :net_http})}).at_least(:once)
     ::Waistband.config.setup
     expect(::Waistband.config.instance_variable_get('@adapter')).to eql :net_http
     expect(::Waistband.client.transport.options[:adapter]).to eql :net_http

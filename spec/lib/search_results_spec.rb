@@ -34,7 +34,7 @@ describe ::Waistband::SearchResults do
 
   it "provides a method interface for the results hash array" do
     expect(results.took).to eql 1
-    expect(results.timed_out).to be_false
+    expect(results.timed_out).to be false
     expect(results._shards).to eql({
       "total" => 12,
       "successful" => 12,
@@ -71,8 +71,8 @@ describe ::Waistband::SearchResults do
       "_message" => "true"
     })
     expect(result.bus_event_type).to eql 'task_opened'
-    expect(result.timeline_event).to be_true
-    expect(result._message).to be_true
+    expect(result.timeline_event).to eql 'true'
+    expect(result._message).to eql 'true'
   end
 
   describe '#paginated_hits' do

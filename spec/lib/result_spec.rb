@@ -34,8 +34,8 @@ describe ::Waistband::Result do
 
   it "provides method missing interface for the _source hash" do
     expect(result.bus_event_type).to eql 'task_opened'
-    expect(result.timeline_event).to be_true
-    expect(result._message).to be_true
+    expect(result.timeline_event).to eql 'true'
+    expect(result._message).to eql 'true'
   end
 
 end

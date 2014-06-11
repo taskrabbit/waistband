@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in waistband.gemspec
 gemspec
 
-gem 'rspec'
-gem 'debugger'
-gem 'kaminari', require: false
-gem 'timecop'
+gem 'rspec', '~> 3.0.0'
+gem 'debugger', '~> 1.6.8'
+gem 'kaminari', '~> 0.16.1', require: false
+gem 'timecop', '~> 0.7.1'

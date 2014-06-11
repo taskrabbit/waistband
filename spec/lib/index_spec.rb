@@ -32,13 +32,13 @@ describe Waistband::Index do
   it "updates the index's mappings" do
     index.refresh
     response = index.update_mapping('event')
-    expect(response['acknowledged']).to be_true
+    expect(response['acknowledged']).to be true
   end
 
   it "updates the index's settings" do
     index.refresh
     response = index.update_settings
-    expect(response['acknowledged']).to be_true
+    expect(response['acknowledged']).to be true
   end
 
   it "proxies to the client's search" do
@@ -51,7 +51,7 @@ describe Waistband::Index do
   describe "storing" do
 
     it "stores data" do
-      expect(index.save('__test_write', {'ok' => 'yeah'})).to be_true
+      expect(index.save('__test_write', {'ok' => 'yeah'})).to be true
       expect(index.read('__test_write')).to eql({
         '_id' => '__test_write',
         '_index' => 'events_test',
@@ -164,20 +164,20 @@ describe Waistband::Index do
         config = sharded_index.send(:config)
 
         expect(sharded_index.send(:base_config_name)).to eql 'events_test'
-        expect(config['stringify']).to be_true
+        expect(config['stringify']).to be true
         expect(config['settings']).to be_present
       end
 
       it "creates the sharded index with the same mappings as the parent" do
         sharded_index.delete
 
-        expect(Waistband::Index.new('events', version: 1).exists?).to be_false
+        expect(Waistband::Index.new('events', version: 1).exists?).to be false
 
         expect {
           sharded_index.create!
         }.to_not raise_error
 
-        expect(Waistband::Index.new('events', version: 1).exists?).to be_true
+        expect(Waistband::Index.new('events', version: 1).exists?).to be true
       end
 
     end
@@ -199,7 +199,7 @@ describe Waistband::Index do
         config = sharded_index.send(:config)
 
         expect(sharded_index.send(:base_config_name)).to eql 'events_test'
-        expect(config['stringify']).to be_true
+        expect(config['stringify']).to be true
         expect(config['settings']).to be_present
       end
 
@@ -246,16 +246,16 @@ describe Waistband::Index do
     end
 
     it "if the index has a custom name, the alias name doesn't automatically append the env" do
-      index.stub(:config).and_return({
+      expect(index).to receive(:config).and_return({
         'name' => 'super_custom'
-      })
+      }).once
       expect(index.send(:full_alias_name, 'all_events')).to eql 'all_events'
     end
 
     it "creates aliases" do
-      expect(index.alias_exists?('events_alias_yo')).to be_false
+      expect(index.alias_exists?('events_alias_yo')).to be false
       index.alias 'events_alias_yo'
-      expect(index.alias_exists?('events_alias_yo')).to be_true
+      expect(index.alias_exists?('events_alias_yo')).to be true
     end
 
     describe 'versioning' do
