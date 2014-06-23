@@ -18,6 +18,22 @@ describe Waistband::Index do
     expect{ index.refresh }.to_not raise_error
   end
 
+  it "blows up when trying to create an existing index" do
+    index.delete!
+    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+
+    expect{ index.create! }.to_not raise_error
+    expect{ index.create! }.to raise_error(::Waistband::Errors::IndexExists, "Index already exists")
+  end
+
+  it "doesn't blow up on creation when using the non-bang method" do
+    index.delete!
+    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+
+    expect{ index.create! }.to_not raise_error
+    expect{ index.create }.to_not raise_error
+  end
+
   it "deletes the index" do
     index.delete!
     expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
@@ -33,6 +49,16 @@ describe Waistband::Index do
     index.refresh
     response = index.update_mapping('event')
     expect(response['acknowledged']).to be true
+  end
+
+  it "updates all mappings" do
+    index.refresh
+    responses = index.update_all_mappings
+    expect(responses).to be_an Array
+
+    response = responses.first
+    expect(response['acknowledged']).to be true
+    expect(response['_type']).to eql 'event'
   end
 
   it "updates the index's settings" do
@@ -94,6 +120,16 @@ describe Waistband::Index do
 
       expect(index.read('__test_write')[:_source]).to   eql({'data' => 'index_1'})
       expect(index2.read('__test_write')[:_source]).to  eql({'data' => 'index_2'})
+    end
+
+    it "finds a result instead of a hash" do
+      index.save('__test_write', attrs)
+      result = index.read_result!('__test_write')
+
+      expect(result).to be_present
+      expect(result).to be_a Waistband::Result
+      expect(result._id).to eql '__test_write'
+      expect(result.ok).to eql '{"yeah"=>true}'
     end
 
   end

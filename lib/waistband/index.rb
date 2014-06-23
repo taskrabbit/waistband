@@ -1,6 +1,8 @@
 require 'active_support/core_ext/hash/keys'
 require 'active_support/core_ext/array/extract_options'
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/object/blank'
+require 'active_support/core_ext/object/try'
 require 'elasticsearch'
 
 module Waistband
@@ -33,6 +35,12 @@ module Waistband
       client.indices.refresh index: config_name
     end
 
+    def update_all_mappings
+      responses = types.map do |type|
+        update_mapping(type).merge('_type' => type)
+      end
+    end
+
     def update_mapping(type)
       client.indices.put_mapping(
         index: config_name,
@@ -55,8 +63,10 @@ module Waistband
     end
 
     def create!
-      raise ::Waistband::Errors::IndexExists.new("Index already exists") if exists?
       client.indices.create index: config_name, body: config.except('name', 'stringify')
+    rescue Elasticsearch::Transport::Transport::Errors::BadRequest => ex
+      raise ex unless ex.message.to_s =~ /IndexAlreadyExistsException/
+      raise ::Waistband::Errors::IndexExists.new("Index already exists")
     end
 
     def delete
@@ -66,8 +76,10 @@ module Waistband
     end
 
     def delete!
-      raise ::Waistband::Errors::IndexNotFound.new("Index not found") unless exists?
       client.indices.delete index: config_name
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
+      raise ex unless ex.message.to_s =~ /IndexMissingException/
+      raise ::Waistband::Errors::IndexNotFound.new("Index not found")
     end
 
     def save(*args)
@@ -97,6 +109,17 @@ module Waistband
     def find!(id, options = {})
       doc = read!(id, options)
       doc['_source']
+    end
+
+    def read_result(id, options = {})
+      read_result!(id, options)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      nil
+    end
+
+    def read_result!(id, options = {})
+      hit = read!(id, options)
+      ::Waistband::Result.new(hit)
     end
 
     def read(id, options = {})
@@ -216,6 +239,10 @@ module Waistband
 
         data = data.stringify_all if data.respond_to? :stringify_all
         data
+      end
+
+      def types
+        config.try(:[], 'mappings').try(:keys) || []
       end
 
       def default_type_name
