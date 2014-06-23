@@ -42,10 +42,14 @@ module Waistband
     end
 
     def update_mapping(type)
+      properties = config['mappings'][type]['properties'] || {}
+
+      mapping_hash = {type => {properties: properties}}
+
       client.indices.put_mapping(
         index: config_name,
         type: type,
-        body: config['mappings'][type]
+        body: mapping_hash
       )
     end
 

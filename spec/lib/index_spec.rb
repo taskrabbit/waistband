@@ -46,8 +46,10 @@ describe Waistband::Index do
   end
 
   it "updates the index's mappings" do
-    index.refresh
-    response = index.update_mapping('event')
+    index = Waistband::Index.new('geo')
+    expect{ index.create }.to_not raise_error
+
+    response = index.update_mapping('geo')
     expect(response['acknowledged']).to be true
   end
 
