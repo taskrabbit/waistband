@@ -23,23 +23,15 @@ module Waistband
       raise "Please define a valid `config_dir` configuration variable!"  unless config_dir
       raise "Couldn't find configuration directory #{config_dir}"         unless File.exist?(config_dir)
 
-      @env ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
-      if defined?(ERB)
-        yml = YAML.load(ERB.new(File.read("#{config_dir}/waistband.yml")).result)
-      else
-        yml = YAML.load_file("#{config_dir}/waistband.yml")
-      end
-      @yml_config   = yml[@env].with_indifferent_access
-      @adapter      = @yml_config.delete('adapter')
+      @env         ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      yml            = load_yml_with_erb(File.join(config_dir, 'waistband.yml'))
+      @yml_config    = yml[@env].with_indifferent_access
+      @adapter       = @yml_config.delete('adapter')
     end
 
     def index(name)
       return @indexes[name] if @indexes[name]
-      if defined?(ERB)
-        yml = YAML.load(ERB.new(File.read("#{config_dir}/waistband_#{name}.yml")).result)
-      else
-        yml = YAML.load_file("#{config_dir}/waistband_#{name}.yml")
-      end
+      yml = load_yml_with_erb(File.join(config_dir, "waistband_#{name}.yml"))
       @indexes[name] = yml[@env].with_indifferent_access
     end
 
@@ -77,6 +69,14 @@ module Waistband
     end
 
     private
+
+      def load_yml_with_erb(file)
+        if defined?(ERB)
+          YAML.load(ERB.new(File.read(file)).result)
+        else
+          YAML.load_file(file)
+        end
+      end
 
       def timeout
         return @timeout if defined? @timeout
