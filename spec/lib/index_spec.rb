@@ -262,6 +262,19 @@ describe Waistband::Index do
 
   end
 
+  describe 'index prefixing' do
+    before do
+      allow(Waistband.config).to receive(:index_prefix){ 'foo' }
+    end
+
+    it 'should prefix the index name based on the Waistband.config value' do
+      index = Waistband::Index.new 'events_no_name', subs: %w(2013 01)
+      expect(index.send(:config_name)).to eq('foo__events_no_name_test__2013_01')
+    end
+  end
+
+
+
   describe '#base_config_name' do
 
     it "gets a default name that makes sense for the index when not defined" do

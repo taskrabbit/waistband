@@ -9,6 +9,7 @@ module Waistband
     include Singleton
 
     attr_accessor :config_dir
+    attr_accessor :index_prefix
     attr_writer   :timeout
     attr_reader   :env
 
