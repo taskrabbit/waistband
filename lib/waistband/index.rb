@@ -259,12 +259,16 @@ module Waistband
       end
 
       def config_name
-        @subs ? "#{base_config_name}__#{@subs.join('_')}" : base_config_name
+        [name_prefix, base_config_name, @subs.try(:join, '_')].reject(&:blank?).join('__')
       end
 
       def base_config_name
         return config['name'] if config['name']
         "#{@index_name}_#{::Waistband.config.env}"
+      end
+
+      def name_prefix
+        ::Waistband.config.index_prefix
       end
 
     # /private
