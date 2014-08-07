@@ -77,46 +77,24 @@ describe ::Waistband::SearchResults do
 
   describe '#paginated_hits' do
 
-    it "provides a paginated array from Kaminari if Kaminari is defined" do
+    it "provides a paginated array compatible with a readonly Kaminari array" do
       load 'active_support/concern.rb'
-      load 'kaminari/config.rb'
-      load 'kaminari/models/page_scope_methods.rb'
-      load 'kaminari/models/configuration_methods.rb'
-      load 'kaminari/models/array_extension.rb'
 
-      expect(results.paginated_hits).to be_an ::Kaminari::PaginatableArray
+      expect(results.paginated_hits).to be_a ::Waistband::SearchResults::PaginatedArray
       expect(results.paginated_hits.total_pages).to eql 1
       expect(results.paginated_hits.current_page).to eql 1
-    end
-
-    it "blows up when kaminari's not required" do
-      # if we've already required Kaminari from the test above, lets remove
-      Object.send(:remove_const, :Kaminari) if defined?(Kaminari)
-
-      expect { results.paginated_hits }.to raise_error RuntimeError, "Kaminari gem not found for pagination"
     end
 
   end
 
   describe '#paginated_results' do
 
-    it "provides a paginated array from Kaminari if Kaminari is defined" do
+    it "provides a paginated array compatible with a readonly Kaminari array" do
       load 'active_support/concern.rb'
-      load 'kaminari/config.rb'
-      load 'kaminari/models/page_scope_methods.rb'
-      load 'kaminari/models/configuration_methods.rb'
-      load 'kaminari/models/array_extension.rb'
 
-      expect(results.paginated_results).to be_an ::Kaminari::PaginatableArray
+      expect(results.paginated_results).to be_a ::Waistband::SearchResults::PaginatedArray
       expect(results.paginated_results.total_pages).to eql 1
       expect(results.paginated_results.current_page).to eql 1
-    end
-
-    it "blows up when kaminari's not required" do
-      # if we've already required Kaminari from the test above, lets remove
-      Object.send(:remove_const, :Kaminari) if defined?(Kaminari)
-
-      expect { results.paginated_results }.to raise_error RuntimeError, "Kaminari gem not found for pagination"
     end
 
   end

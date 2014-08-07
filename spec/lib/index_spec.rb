@@ -183,6 +183,18 @@ describe Waistband::Index do
         expect(query.hits.size).to eql 2
       end
 
+      it 'returns results beyond page 1 (does not double scope)' do
+        query = index.search(page_size: 2, page: 1)
+        hits1 = query.hits
+        expect(hits1.size).to eql 2
+
+        query = index.search(page_size: 2, page: 2)
+        hits2 = query.hits
+        expect(hits2.size).to eql 2
+
+        expect(hits1 & hits2).to be_empty
+      end
+
     end
 
   end
