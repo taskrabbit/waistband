@@ -5,5 +5,4 @@ gemspec
 
 gem 'rspec', '~> 3.0.0'
 gem 'debugger', '~> 1.6.8'
-gem 'kaminari', require: false
 gem 'timecop', '~> 0.7.1'

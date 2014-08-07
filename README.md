@@ -166,7 +166,7 @@ results.hits # => returns a search results object
 results.total_hits # => 28481
 ```
 
-For paginating the results, you can use the `#paginated_results` method, which requires the [Kaminari](https://github.com/amatsuda/kaminari), gem.  If you use another gem, you can just override the method, etc.
+For paginating the results, you can use the `#paginated_results` method, which will provide an array object compatible with the kaminari gem.  If you use another gem, you can just override the method, etc.
 
 For more information and extra methods, take a peek into the class docs.
 
