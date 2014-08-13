@@ -8,9 +8,9 @@ module Waistband
 
     include Singleton
 
-    attr_accessor :config_dir
+    attr_accessor :config_dir, :logger
     attr_writer   :timeout
-    attr_reader   :env, :logger
+    attr_reader   :env
 
     def initialize
       @yml_config = {}
@@ -66,10 +66,6 @@ module Waistband
 
     def reset_timeout
       remove_instance_variable '@timeout'
-    end
-
-    def logger=(logger)
-      @logger = logger
     end
 
     private
