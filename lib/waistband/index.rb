@@ -12,7 +12,8 @@ module Waistband
       options = options.stringify_keys
 
       @index_name = index_name
-      @stringify = config['stringify']
+      @stringify  = config['stringify']
+      @log_level  = config['log_level']
 
       # subindexes checks
       if options['version'].present?
@@ -67,7 +68,7 @@ module Waistband
     end
 
     def create!
-      client.indices.create index: config_name, body: config.except('name', 'stringify')
+      client.indices.create index: config_name, body: config.except('name', 'stringify', 'log_level')
     rescue Elasticsearch::Transport::Transport::Errors::BadRequest => ex
       raise ex unless ex.message.to_s =~ /IndexAlreadyExistsException/
       raise ::Waistband::Errors::IndexExists.new("Index already exists")
@@ -194,7 +195,16 @@ module Waistband
     end
 
     def client
-      @client ||= ::Waistband.config.client
+      @client ||= begin
+        _client = ::Waistband.config.client
+
+        if @log_level && Waistband.config.logger
+          _client.transport.logger       = Waistband.config.logger
+          _client.transport.logger.level = @log_level
+        end
+
+        _client
+      end
     end
 
     private

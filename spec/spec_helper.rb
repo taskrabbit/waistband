@@ -21,6 +21,7 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
+    IndexHelper.delete_all
     IndexHelper.create_all
     example.run
     IndexHelper.delete_all

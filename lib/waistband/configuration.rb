@@ -10,7 +10,7 @@ module Waistband
 
     attr_accessor :config_dir
     attr_writer   :timeout
-    attr_reader   :env
+    attr_reader   :env, :logger
 
     def initialize
       @yml_config = {}
@@ -66,6 +66,10 @@ module Waistband
 
     def reset_timeout
       remove_instance_variable '@timeout'
+    end
+
+    def logger=(logger)
+      @logger = logger
     end
 
     private

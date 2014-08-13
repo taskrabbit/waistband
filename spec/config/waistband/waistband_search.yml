@@ -1,5 +1,6 @@
 development: &DEV
   stringify: false
+  log_level: 2 # warning
   settings:
     index:
       number_of_shards: 1
