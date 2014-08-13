@@ -323,4 +323,34 @@ describe Waistband::Index do
 
   end
 
+  describe 'logging' do
+
+    class FakeLog
+      attr_reader :level
+
+      def level=(val)
+        @level = val
+      end
+
+      def info(val);  end
+      def debug(val); end
+      def fatal(val); end
+    end
+
+    before do
+      Waistband.config.logger = FakeLog.new
+    end
+
+    it "sets the index's client transport logger" do
+      expect(index2.client.transport.logger).to be_a FakeLog
+      expect(index2.client.transport.logger.level).to eql 2
+    end
+
+    it "logs" do
+      expect(Waistband.config.logger).to receive(:info).with(kind_of(String)).once
+      index2.search({})
+    end
+
+  end
+
 end
