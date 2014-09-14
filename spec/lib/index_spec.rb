@@ -353,4 +353,22 @@ describe Waistband::Index do
 
   end
 
+  describe 'readonly' do
+
+    let(:index) { Waistband::Index.new('events_readonly') }
+
+    it "doesn't allow deleting the index" do
+      expect {
+        index.delete!
+      }.to raise_error(Waistband::Errors::ReadonlyIndexError)
+    end
+
+    it "doesn't allow deleting the index" do
+      expect {
+        index.delete!
+      }.to raise_error(Waistband::Errors::ReadonlyIndexError)
+    end
+
+  end
+
 end

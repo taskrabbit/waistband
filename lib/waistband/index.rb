@@ -28,6 +28,14 @@ module Waistband
 
     end
 
+    def readonly?
+      !!config['readonly']
+    end
+
+    def ensure_write_access!
+      raise ::Waistband::Errors::ReadonlyIndexError if readonly?
+    end
+
     def exists?
       client.indices.exists index: config_name
     end
@@ -37,12 +45,14 @@ module Waistband
     end
 
     def update_all_mappings
-      responses = types.map do |type|
+      ensure_write_access!
+      types.map do |type|
         update_mapping(type).merge('_type' => type)
       end
     end
 
     def update_mapping(type)
+      ensure_write_access!
       properties = config['mappings'][type]['properties'] || {}
 
       mapping_hash = {type => {properties: properties}}
@@ -55,6 +65,7 @@ module Waistband
     end
 
     def update_settings
+      ensure_write_access!
       client.indices.put_settings(
         index: config_name,
         body: settings
@@ -81,6 +92,7 @@ module Waistband
     end
 
     def delete!
+      ensure_write_access!
       client.indices.delete index: config_name
     rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
       raise ex unless ex.message.to_s =~ /IndexMissingException/
@@ -88,6 +100,7 @@ module Waistband
     end
 
     def save(*args)
+      ensure_write_access!
       body_hash = args.extract_options!
       id = args.first
       _type = body_hash.delete(:_type) || body_hash.delete('_type') || default_type_name
@@ -151,6 +164,7 @@ module Waistband
     end
 
     def destroy!(id, options = {})
+      ensure_write_access!
       options = options.with_indifferent_access
       type = options[:_type] || default_type_name
 
@@ -175,6 +189,7 @@ module Waistband
     end
 
     def alias(alias_name)
+      ensure_write_access!
       alias_name = full_alias_name alias_name
       client.indices.put_alias(
         index: config_name,
