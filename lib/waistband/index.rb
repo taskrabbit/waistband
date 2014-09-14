@@ -260,7 +260,7 @@ module Waistband
       end
 
       def default_type_name
-        @index_name.singularize
+        @index_name.to_s.singularize
       end
 
       def settings

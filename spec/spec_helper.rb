@@ -14,10 +14,9 @@ Dir["#{APP_DIR}/spec/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
 
-  config.before(:all) do
-    Waistband.configure do |c|
-      c.config_dir = "#{APP_DIR}/spec/config/waistband"
-    end
+
+  Waistband.configure do |c|
+    c.config_dir = "#{APP_DIR}/spec/config/waistband"
   end
 
   config.around(:each) do |example|

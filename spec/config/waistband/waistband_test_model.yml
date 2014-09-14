@@ -1,0 +1,13 @@
+development: &DEV
+  settings:
+    index:
+      number_of_shards: 1
+      number_of_replicas: 1
+  mappings:
+    test_model:
+      _source:
+        includes: ["*"]
+
+test:
+  <<: *DEV
+

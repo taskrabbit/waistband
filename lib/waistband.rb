@@ -9,6 +9,7 @@ module Waistband
   autoload :Index,            "waistband/index"
   autoload :SearchResults,    "waistband/search_results"
   autoload :Result,           "waistband/result"
+  autoload :Model,            "waistband/model"
 
   class << self
 

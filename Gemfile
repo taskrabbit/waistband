@@ -6,3 +6,4 @@ gemspec
 gem 'rspec', '~> 3.1.0'
 gem 'debugger', '~> 1.6.8'
 gem 'timecop', '~> 0.7.1'
+gem 'activemodel', '~> 4.1.6'
