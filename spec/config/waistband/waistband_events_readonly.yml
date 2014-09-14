@@ -1,0 +1,15 @@
+development: &DEV
+  readonly: true
+  stringify: true
+  settings:
+    index:
+      number_of_shards: 1
+      number_of_replicas: 1
+  mappings:
+    event:
+      _source:
+        includes: ["*"]
+
+test:
+  <<: *DEV
+
