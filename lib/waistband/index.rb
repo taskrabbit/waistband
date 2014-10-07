@@ -314,7 +314,15 @@ module Waistband
       end
 
       def default_type_name
+        return default_type_name_from_mappings if default_type_name_from_mappings
         @index_name.singularize
+      end
+
+      def default_type_name_from_mappings
+        @default_type_name_from_mappings ||= begin
+          mappings = (config['mappings'] || {})
+          mappings.keys.first
+        end
       end
 
       def settings
