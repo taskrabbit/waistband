@@ -31,7 +31,7 @@ module Waistband
     def config_hash
       {
         adapter: @adapter,
-        hosts: @hosts,
+        hosts: hosts,
         randomize_hosts: @randomize_hosts,
         retry_on_failure: @retry_on_failure,
         reload_on_failure: @reload_on_failure,

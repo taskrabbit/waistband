@@ -76,6 +76,13 @@ describe Waistband::Index do
     expect(result.hits).to be_an Array
   end
 
+  it "correctly sets hosts" do
+    expect(index.client.send(:hosts)).to eql([
+      {"host" => "localhost", "port" => 9200, "protocol" => "http"},
+      {"host" => "127.0.0.1", "port" => 9200, "protocol" => "http"}
+    ])
+  end
+
   describe "storing" do
 
     it "stores data" do
