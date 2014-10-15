@@ -40,14 +40,8 @@ module Waistband
       super
     end
 
-    def hosts
-      @hosts ||= @yml_config['servers'].map do |server_name, config|
-        config
-      end
-    end
-
     def client
-      ::Waistband::Client.new(@adapter, hosts, randomize_hosts: true, retry_on_failure: retries, reload_on_failure: reload_on_failure, timeout: timeout)
+      ::Waistband::Client.from_config(client_config_hash)
     end
 
     def reset_timeout
@@ -55,6 +49,17 @@ module Waistband
     end
 
     private
+
+      def client_config_hash
+        {
+          'servers' => servers,
+          'randomize_hosts' => true,
+          'retry_on_failure' => retries,
+          'reload_on_failure' => reload_on_failure,
+          'timeout' => timeout,
+          'adapter' => @adapter
+        }
+      end
 
       def load_yml_with_erb(file)
         if defined?(ERB)

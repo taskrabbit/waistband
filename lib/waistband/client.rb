@@ -1,13 +1,27 @@
 module Waistband
   class Client
 
-    def initialize(adapter, hosts, options = {})
-      @adapter = adapter
-      @hosts = hosts
+    class << self
+
+      def from_config(config_hash)
+        new(
+          config_hash['servers'], randomize_hosts: true,
+          retry_on_failure: config_hash['retries'],
+          reload_on_failure: config_hash['reload_on_failure'],
+          timeout: config_hash['timeout'],
+          adapter: config_hash['adapter']
+        )
+      end
+
+    end
+
+    def initialize(servers, options = {})
+      @servers = servers
       @randomize_hosts = options.fetch(:randomize_hosts, true)
       @retry_on_failure = options[:retry_on_failure]
       @reload_on_failure = options[:reload_on_failure]
       @timeout = options[:timeout]
+      @adapter = options[:adapter]
     end
 
     def connection
@@ -34,6 +48,14 @@ module Waistband
       return connection.send(method_name, *args, &block) if connection.respond_to?(method_name)
       super
     end
+
+    private
+
+      def hosts
+        @hosts ||= @servers.map do |server_name, config|
+          config
+        end
+      end
 
   end
 end

@@ -1,0 +1,22 @@
+development: &DEV
+  stringify: true
+  connection:
+    timeout: 2
+    retries: 5
+    reload_on_failure: true
+    servers:
+      server1:
+        host: 127.0.0.1
+        port: 9200
+        protocol: http
+  settings:
+    index:
+      number_of_shards: 1
+      number_of_replicas: 1
+  mappings:
+    event:
+      _source:
+        includes: ["*"]
+
+test:
+  <<: *DEV
