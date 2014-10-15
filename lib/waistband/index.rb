@@ -196,7 +196,12 @@ module Waistband
 
     def client
       @client ||= begin
-        _client = ::Waistband.config.client
+
+        _client = if client_config_hash
+          ::Waistband::Client.from_config(client_config_hash)
+        else
+          ::Waistband.config.client
+        end
 
         if @log_level && Waistband.config.logger
           _client.transport.logger       = Waistband.config.logger
@@ -204,10 +209,15 @@ module Waistband
         end
 
         _client
+
       end
     end
 
     private
+
+      def client_config_hash
+        config['connection']
+      end
 
       def get_page_info(body_hash)
         page = body_hash[:page]

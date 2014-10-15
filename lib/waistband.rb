@@ -5,6 +5,7 @@ module Waistband
   autoload :Errors,           "waistband/errors"
   autoload :StringifiedArray, "waistband/stringified_array"
   autoload :StringifiedHash,  "waistband/stringified_hash"
+  autoload :Client,           "waistband/client"
   autoload :Configuration,    "waistband/configuration"
   autoload :Index,            "waistband/index"
   autoload :SearchResults,    "waistband/search_results"

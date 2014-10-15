@@ -19,8 +19,9 @@ describe Waistband::Configuration do
   end
 
   it "proxies the client" do
-    expect(::Waistband.config.client).to be_a ::Elasticsearch::Transport::Client
-    expect(::Waistband.client).to be_a ::Elasticsearch::Transport::Client
+    expect(::Waistband.config.client).to be_a ::Waistband::Client
+    expect(::Waistband.config.client.connection).to be_a ::Elasticsearch::Transport::Client
+    expect(::Waistband.client).to be_a ::Waistband::Client
   end
 
   it "permits passing in an adapter to use to the client" do
@@ -42,13 +43,14 @@ describe Waistband::Configuration do
     expect(::Waistband.config.send(:timeout)).to eql 2
   end
 
-  describe '#hosts' do
+  describe 'hosts' do
 
     it "returns array of all available servers' configs" do
-      expect(config.hosts).to be_an Array
-      expect(config.hosts.size).to eql 2
+      hosts = config.client.send(:hosts)
+      expect(hosts).to be_an Array
+      expect(hosts.size).to eql 2
 
-      config.hosts.each_with_index do |server, i|
+      hosts.each_with_index do |server, i|
         expect(server['host']).to match /127\.0\.0\.1|localhost/
         expect(server['port']).to eql 9200
         expect(server['protocol']).to eql 'http'
