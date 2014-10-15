@@ -19,8 +19,9 @@ describe Waistband::Configuration do
   end
 
   it "proxies the client" do
-    expect(::Waistband.config.client).to be_a ::Elasticsearch::Transport::Client
-    expect(::Waistband.client).to be_a ::Elasticsearch::Transport::Client
+    expect(::Waistband.config.client).to be_a ::Waistband::Client
+    expect(::Waistband.config.client.connection).to be_a ::Elasticsearch::Transport::Client
+    expect(::Waistband.client).to be_a ::Waistband::Client
   end
 
   it "permits passing in an adapter to use to the client" do

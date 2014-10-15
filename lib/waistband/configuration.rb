@@ -47,21 +47,7 @@ module Waistband
     end
 
     def client
-      client_hash = {
-        adapter: @adapter,
-        hosts: hosts,
-        randomize_hosts: true,
-        retry_on_failure: retries,
-        reload_on_failure: reload_on_failure,
-        transport_options: {
-          request: {
-            open_timeout: timeout,
-            timeout: timeout
-          }
-        }
-      }
-
-      Elasticsearch::Client.new client_hash
+      ::Waistband::Client.new(@adapter, hosts, randomize_hosts: true, retry_on_failure: retries, reload_on_failure: reload_on_failure, timeout: timeout)
     end
 
     def reset_timeout
