@@ -15,6 +15,8 @@ module Waistband
 
     end
 
+    attr_reader :servers
+
     def initialize(servers, options = {})
       @servers = servers
       @randomize_hosts = options.fetch(:randomize_hosts, true)

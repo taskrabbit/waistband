@@ -15,6 +15,10 @@ describe Waistband::Index do
     expect(client.send(:config_hash)[:hosts]).to eql([{"host"=>"127.0.0.1", "port"=>9200, "protocol"=>"http"}])
   end
 
+  it "exposes servers correctly" do
+    expect(client.servers).to eql({"server1"=>{"host"=>"127.0.0.1", "port"=>9200, "protocol"=>"http"}})
+  end
+
   it "works" do
     index.delete
     index.create
