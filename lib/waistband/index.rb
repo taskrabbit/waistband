@@ -8,6 +8,8 @@ require 'elasticsearch'
 module Waistband
   class Index
 
+    BODY_SIZE_LIMIT = 100_000
+
     def initialize(index_name, options = {})
       options = options.stringify_keys
 
@@ -94,6 +96,8 @@ module Waistband
 
       # map everything to strings if need be
       body_hash = stringify_all(body_hash) if @stringify
+
+      verify_body_size(config_name, _type, id, body_hash)
 
       saved = client.index(
         index: config_name,
@@ -214,6 +218,29 @@ module Waistband
     end
 
     private
+
+      def verify_body_size(index_config_name, type, id, body_hash)
+        body_json = body_hash.to_json
+        size = body_json.bytesize
+
+        if size > BODY_SIZE_LIMIT
+          msg  = "verify_body_size: Body size larger than limit.  "
+          msg << "Current size: #{size}.  Limit: #{BODY_SIZE_LIMIT}.  "
+          msg << "index_config_name: #{index_config_name}.  _type: #{type}.  id: #{id}.  "
+          msg << "body: #{body_json[0, 1000]}"
+          log_warning(msg)
+        end
+      end
+
+      def log_warning(msg)
+        return unless logger
+
+        logger.warn "[WAISTBAND :: WARNING] #{msg}"
+      end
+
+      def logger
+        client.transport.logger
+      end
 
       def client_config_hash
         config['connection']

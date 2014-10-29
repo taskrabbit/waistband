@@ -332,18 +332,6 @@ describe Waistband::Index do
 
   describe 'logging' do
 
-    class FakeLog
-      attr_reader :level
-
-      def level=(val)
-        @level = val
-      end
-
-      def info(val);  end
-      def debug(val); end
-      def fatal(val); end
-    end
-
     before do
       Waistband.config.logger = FakeLog.new
     end
