@@ -2,30 +2,38 @@ module Waistband
   module IndexOperations
     module Bulk
 
-      def bulk(actions)
-        _acts = es_actions(actions)
+      def bulk(*args)
+        options = args.extract_options!
+        actions = args.first
+
+        body = actions.map do |action_hash|
+          action_to_api_action(action_hash)
+        end
+
+        saved = client.bulk({
+          body: body
+        })
+
+        saved['errors'] != true
       end
 
       private
 
-        def es_actions(actions)
-          actions.map do |args|
-            action_to_es_api_action(args)
-          end
-        end
+        def action_to_api_action(action_hash)
+          action_hash.stringify_keys!
 
-        def action_to_es_api_action(args)
-          body_hash = args.extract_options!
-          action_name = args[0]
-          _id = args[1]
-          _type = infer_type(body_hash)
+          action_name = action_hash['action']
+          _id         = action_hash['id']
+
+          body_hash = action_hash['body']
+          _type     = infer_type(body_hash)
 
           {
             action_name.to_sym => {
               _index: config_name,
-              _type: _type,
-              _id: _id,
-              data: body_hash
+              _type:  _type,
+              _id:    _id,
+              data:   body_hash
             }
           }
         end
