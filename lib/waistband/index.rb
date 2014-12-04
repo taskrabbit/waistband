@@ -5,6 +5,7 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/object/try'
 require 'elasticsearch'
 
+require 'waistband/index_operations/bulk'
 require 'waistband/index_operations/crud'
 require 'waistband/index_operations/search'
 require 'waistband/index_operations/settings'
@@ -12,6 +13,7 @@ require 'waistband/index_operations/settings'
 module Waistband
   class Index
 
+    include ::Waistband::IndexOperations::Bulk
     include ::Waistband::IndexOperations::Crud
     include ::Waistband::IndexOperations::Search
     include ::Waistband::IndexOperations::Settings
@@ -84,6 +86,10 @@ module Waistband
     end
 
     private
+
+      def infer_type(body_hash)
+        body_hash.delete(:_type) || body_hash.delete('_type') || default_type_name
+      end
 
       def log_warning(msg)
         return unless logger

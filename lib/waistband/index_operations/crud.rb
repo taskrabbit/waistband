@@ -32,6 +32,10 @@ module Waistband
 
       def save(*args)
         with_body_prelude(args) do |id, _type, body_hash|
+
+          # map everything to strings if need be
+          body_hash = stringify_all(body_hash) if @stringify
+
           saved = client.index(
             index: config_name,
             type: _type,
@@ -45,6 +49,17 @@ module Waistband
 
       def update(*args)
         with_body_prelude(args) do |id, _type, body_hash|
+          # map everything to strings if need be
+          if @stringify && body_hash['doc'] || body_hash['script']
+            key = 'doc'    if body_hash['doc']
+            key = 'script' if body_hash['script']
+
+            inner_body_hash = body_hash[key]
+
+            inner_body_hash = stringify_all(inner_body_hash)
+            body_hash[key]  = inner_body_hash
+          end
+
           saved = client.update(
             index: config_name,
             type: _type,
@@ -116,11 +131,10 @@ module Waistband
 
         def with_body_prelude(args)
           body_hash = args.extract_options!
-          id = args.first
-          _type = body_hash.delete(:_type) || body_hash.delete('_type') || default_type_name
+          body_hash.stringify_keys!
 
-          # map everything to strings if need be
-          body_hash = stringify_all(body_hash) if @stringify
+          id = args.first
+          _type = infer_type(body_hash)
 
           verify_body_size(config_name, _type, id, body_hash)
 

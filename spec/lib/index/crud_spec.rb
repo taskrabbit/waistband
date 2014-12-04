@@ -101,4 +101,34 @@ describe "Waistband::Index -- CRUD" do
 
   end
 
+  describe "updating" do
+
+    it "partially updates a document" do
+      expect(index2.save('__test_write', {'ok' => 'yeah', 'not_ok' => 'oh_noes'})).to be true
+
+      data = index2.find('__test_write')
+      expect(data['ok']).to eql('yeah')
+      expect(data['not_ok']).to eql('oh_noes')
+
+      expect(index2.update('__test_write', {'doc' => {'not_ok' => '123'}})).to be true
+
+      data = index2.find('__test_write')
+      expect(data['ok']).to eql('yeah')
+      expect(data['not_ok']).to eql('123')
+    end
+
+    it "data is stringified" do
+      index.save('__test_write', attrs)
+
+      data = index.find('__test_write')
+      expect(data['ok']).to eql("{\"yeah\"=>true}")
+
+      expect(index.update('__test_write', {'doc' => {'ok' => {'yeah' => false}}})).to be true
+
+      data = index.find('__test_write')
+      expect(data['ok']).to eql("{\"yeah\"=>false}")
+    end
+
+  end
+
 end
