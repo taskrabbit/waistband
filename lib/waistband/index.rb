@@ -125,11 +125,6 @@ module Waistband
         @index_name.singularize
       end
 
-      def settings
-        settings = config['settings']['index'].except('number_of_shards')
-        {index: settings}
-      end
-
       def config_name
         @subs ? "#{base_config_name}__#{@subs.join('_')}" : base_config_name
       end

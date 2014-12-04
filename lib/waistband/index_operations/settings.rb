@@ -27,6 +27,13 @@ module Waistband
         )
       end
 
+      private
+
+        def settings
+          settings = config['settings']['index'].except('number_of_shards')
+          {index: settings}
+        end
+
     end
   end
 end
