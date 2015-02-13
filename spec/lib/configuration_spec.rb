@@ -43,6 +43,10 @@ describe Waistband::Configuration do
     expect(::Waistband.config.send(:timeout)).to eql 2
   end
 
+  it "allows setting false config values" do
+    expect(config.extra_falsy_config).to eql false
+  end
+
   describe 'hosts' do
 
     it "returns array of all available servers' configs" do
@@ -51,7 +55,7 @@ describe Waistband::Configuration do
       expect(hosts.size).to eql 2
 
       hosts.each_with_index do |server, i|
-        expect(server['host']).to match /127\.0\.0\.1|localhost/
+        expect(server['host']).to match(/127\.0\.0\.1|localhost/)
         expect(server['port']).to eql 9200
         expect(server['protocol']).to eql 'http'
       end

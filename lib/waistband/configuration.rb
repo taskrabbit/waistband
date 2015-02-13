@@ -36,7 +36,7 @@ module Waistband
     end
 
     def method_missing(method_name, *args, &block)
-      return @yml_config[method_name] if @yml_config[method_name]
+      return @yml_config[method_name] if @yml_config.has_key?(method_name)
       super
     end
 

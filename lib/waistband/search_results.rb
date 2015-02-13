@@ -53,12 +53,12 @@ module Waistband
     end
 
     def method_missing(method_name, *args, &block)
-      return @search_hash[method_name.to_s] if @search_hash.keys.include?(method_name.to_s)
+      return @search_hash[method_name.to_s] if @search_hash.has_key?(method_name.to_s)
       super
     end
 
     def respond_to_missing?(method_name, include_private = false)
-      return true if @search_hash.keys.include?(method_name.to_s)
+      return true if @search_hash.has_key?(method_name.to_s)
       super
     end
 

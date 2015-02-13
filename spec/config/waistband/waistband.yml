@@ -2,6 +2,7 @@ development: &DEV
   timeout: 2
   retries: 5
   reload_on_failure: true
+  extra_falsy_config: false
   servers:
     server1:
       host: localhost
