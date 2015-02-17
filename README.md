@@ -77,6 +77,33 @@ development:
                 includes: ["*"]
 ```
 
+Note that you can configure specific connection settings for a particular index, if for some reason or another that index in particular uses a different set of servers:
+
+```yml
+development:
+  connection:
+    timeout: 2
+    retries: 5
+    reload_on_failure: true
+    servers:
+      server1:
+        host: 192.168.31.112
+        port: 9200
+        protocol: http
+      server2:
+        host: 192.168.31.113
+        port: 9200
+        protocol: http
+  settings:
+    index:
+      number_of_shards: 1
+      number_of_replicas: 1
+  mappings:
+    event:
+      _source:
+        includes: ["*"]
+```
+
 ## List of config settings:
 
 * `settings`: settings for the Elastic Search index.  Refer to the ["admin indices update settings"](http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/) document for more info.
@@ -86,6 +113,7 @@ development:
 * `timeout`: seconds till a timeout exception is raise when trying to connect to the node.
 * `name`: optional - name of the index.  You can (and probably should) have a different name for the index for your test environment.  If not specified, it defaults to the name of the yml file minus the `waistband_` portion, so in the above example, the index name would become `search_#{env}`, where env is your environment variable as defined in `Waistband::Configuration#setup` (determined by `RAILS_ENV` or `RACK_ENV`).
 * `stringify`: optional - determines wether whatever is stored into the index is going to be converted to a string before storage.  Usually false unless you need it to be true for specific cases, like if for some `key => value` pairs the value is of different types some times.
+* `connection`: optional - determines which server/s the index uses.  If not present, it'll use the default connection settings specified in `config/waistband.yml`.
 
 ## Initializer
 
