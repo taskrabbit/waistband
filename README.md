@@ -252,6 +252,18 @@ index.alias_exists?('my_super_events_alias') # => true
 
 The `alias` methods receives a param to define the alias name.  The same pattern can be used when using index versions.
 
+### Logging
+
+It's very useful to log what the output from all operations is, with that in mind, you can specify a log for Waistband easily:
+
+```ruby
+Waistband.configure do |c|
+  c.logger = Rails.logger.dup
+end
+```
+
+You can do this in an initializer, even the same initializer you used to specify the `config_dir` ealirer if you did so.
+
 ## Contributing
 
 1. Fork it
