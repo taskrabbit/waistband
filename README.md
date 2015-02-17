@@ -2,6 +2,8 @@
 
 Configuration and sensible defaults for ElasticSearch on Ruby.  Handles configuration, index creation, quality of life, etc, of Elastic Search in Ruby.
 
+Waistband doens't handle connections or API requests, it merely acts as a translator between commonly used patterns and the underlying elasticsearch gems.
+
 # Installation
 
 Install ElasticSearch:
@@ -39,7 +41,9 @@ development:
             port: 9200
 ```
 
-You can name the servers whatever you want, and one of them is selected at random using `Array.sample`, excluding blacklisted servers, when conduction operations on the server.  Here's an example with two servers:
+You can name the servers whatever you want.  The connection, retries, timeouts, etc are handled by the `elasticsearch-transport` gem.
+
+Here's an example with two servers:
 
 ```yml
 # #{APP_DIR}/config/waistband/waistband.yml
