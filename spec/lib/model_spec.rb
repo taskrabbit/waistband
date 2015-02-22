@@ -9,6 +9,8 @@ describe Waistband::Model do
 
     defaults important: true, shenanigans: 1
 
+    validates :work_area, presence: true
+
   end
 
   context "index" do
@@ -57,9 +59,26 @@ describe Waistband::Model do
   end
 
   context "validations" do
+
+    it "validates a model" do
+      thing = TestModel.new
+      expect(thing.valid?).to eql(false)
+      thing.work_area = {type: 'polygon'}
+      expect(thing.valid?).to eql(true)
+    end
+
   end
 
   context "callbacks" do
+  end
+
+  context "persistance" do
+  end
+
+  context "reading" do
+  end
+
+  context "searching" do
   end
 
 end

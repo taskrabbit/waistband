@@ -1,7 +1,11 @@
 require 'active_support/core_ext/object/blank'
+require 'active_model'
 
 module Waistband
   class Model
+
+
+    include ::ActiveModel::Validations
 
 
     #################
