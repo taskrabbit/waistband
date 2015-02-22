@@ -9,4 +9,5 @@ class FakeLog
   def debug(val); end
   def fatal(val); end
   def warn(val); end
+  def error(val);  end
 end

@@ -100,7 +100,7 @@ module Waistband
       raise ::Waistband::Errors::IndexNotFound.new("Index not found")
     end
 
-    def save(*args)
+    def save!(*args)
       check_permission!('write')
 
       body_hash = args.extract_options!
@@ -119,7 +119,17 @@ module Waistband
         body: body_hash
       )
 
-      saved['_id'].present?
+      unless saved['_id'].present?
+        raise ::Waistband::Errors::UnableToSave.new("Unable to save to index: #{config_name}, type: #{_type}, id: #{id}: result: #{saved}")
+      end
+
+      saved
+    end
+
+    def save(*args)
+      save!(*args)
+    rescue ::Waistband::Errors::UnableToSave => ex
+      false
     end
 
     def find(id, options = {})
