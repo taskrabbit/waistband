@@ -2,18 +2,13 @@ require 'spec_helper'
 
 describe Waistband::Index do
 
+  let(:index) { Waistband::Index.new('search') }
+
   before do
-    @original_logger = Waistband.config.logger
     Waistband.config.logger = FakeLog.new
   end
 
-  after do
-    Waistband.config.logger = @original_logger
-  end
-
   it "logs a warning when the body size of a document to store is too large" do
-    index = Waistband::Index.new('search')
-
     thing_string = ("a" * 150_000).to_s
 
     expect(Waistband.config.logger).to receive(:warn).with(
