@@ -147,6 +147,35 @@ describe Waistband::Model do
   end
 
   context "searching" do
+
+    it "allows searching for a saved object" do
+      thing = TestModel.new
+      thing.work_area = valid_work_area
+      thing.searchable = 'hello one two three'
+      expect(thing.save).to eql(true)
+      saved_id = thing.id
+      expect(saved_id).to be_present
+
+      TestModel.index.refresh
+
+      results = TestModel.search(
+        query: {
+          query_string: {
+            query: "+searchable:hello*"
+          }
+        }
+      )
+
+      expect(results).to be_an(Array)
+      expect(results.size).to eql(1)
+
+      result = results.first
+      expect(result).to be_present
+      expect(result).to be_a(TestModel)
+      expect(result.id).to eql(saved_id)
+      expect(result.work_area).to eql(valid_work_area)
+    end
+
   end
 
 end

@@ -47,6 +47,14 @@ module Waistband
         new(found_attributes.merge(id: id))
       end
 
+      def search(query_hash)
+        hits = index.search(query_hash).hits
+        hits.map do |hit|
+          id = hit['_id']
+          new(hit['_source'].merge(id: id))
+        end
+      end
+
     end
 
 
@@ -61,6 +69,10 @@ module Waistband
       attributes = attributes.symbolize_keys
       self.id = attributes.delete(:id)
       self.attributes = ((column_defaults || {}).merge(attributes)).symbolize_keys
+    end
+
+    def inspect
+      "#<#{self.class.name}:#{self.object_id} #{self.attributes.map{|k,v| "#{k}: #{v.inspect}"}.join(', ')}>"
     end
 
 
