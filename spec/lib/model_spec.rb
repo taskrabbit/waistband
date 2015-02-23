@@ -126,11 +126,14 @@ describe Waistband::Model do
 
   context "reading" do
 
-    it "allows reading a previously saved object" do
+    let(:saved_id) do
       thing = TestModel.new
       thing.work_area = valid_work_area
       expect(thing.save).to eql(true)
-      saved_id = thing.id
+      thing.id
+    end
+
+    it "allows reading a previously saved object" do
       expect(saved_id).to be_present
 
       found = TestModel.find(saved_id)
@@ -144,6 +147,45 @@ describe Waistband::Model do
       expect{ TestModel.find('9191919191') }.to raise_error(::Waistband::Errors::Model::NotFound, "Couldn't find TestModel with 'id'=9191919191")
     end
 
+    it "when finding a record, it's never a new record" do
+      expect(saved_id).to be_present
+
+      found = TestModel.find(saved_id)
+      expect(found).to be_present
+      expect(found.new_record?).to eql(false)
+    end
+
+    it "allows creating a record via a class method" do
+      saved = TestModel.create(work_area: valid_work_area)
+      expect(saved).to be_a(TestModel)
+      expect(saved.id).to be_present
+      expect(saved.persisted?).to eql(true)
+      expect(saved.work_area).to eql(valid_work_area)
+    end
+
+    it "when creating via class method, failure returns the non-persisted object" do
+      saved = TestModel.create(important: false)
+      expect(saved).to be_a(TestModel)
+      expect(saved.id).to eql(nil)
+      expect(saved.important).to eql(false)
+      expect(saved.new_record?).to eql(true)
+      expect(saved.work_area).to eql(nil)
+      expect(saved.errors.full_messages).to eql(["Work area can't be blank"])
+    end
+
+    it "when creating via bang class method, failure raises" do
+      expect{ TestModel.create!(important: false) }.to raise_error(Waistband::Errors::Model::UnableToSave, %Q|Save not successful: ["Work area can't be blank"]|)
+    end
+
+  end
+
+  context "updating" do
+  end
+
+  context "reloading" do
+  end
+
+  context "destroying" do
   end
 
   context "searching" do

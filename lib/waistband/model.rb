@@ -37,6 +37,18 @@ module Waistband
         @column_defaults.merge!(defaults)
       end
 
+      def create(attributes = {})
+        obj = new(attributes)
+        obj.save
+        obj
+      end
+
+      def create!(attributes = {})
+        obj = new(attributes)
+        obj.save!
+        obj
+      end
+
       def find(id)
         found_attributes = index.find(id)
 
@@ -44,7 +56,7 @@ module Waistband
           raise ::Waistband::Errors::Model::NotFound.new("Couldn't find #{self} with 'id'=#{id}")
         end
 
-        new(found_attributes.merge(id: id))
+        new(found_attributes.merge(id: id, persisted: true))
       end
 
       def search(query_hash)
@@ -67,7 +79,10 @@ module Waistband
 
     def initialize(attributes = {})
       attributes = attributes.symbolize_keys
+
       self.id = attributes.delete(:id)
+      self.persisted = attributes.delete(:persisted)
+
       self.attributes = ((column_defaults || {}).merge(attributes)).symbolize_keys
     end
 
