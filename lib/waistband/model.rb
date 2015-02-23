@@ -205,6 +205,14 @@ module Waistband
       index.save(id, attributes)
     end
 
+    def destroy
+      unless id
+        raise ::Waistband::Errors::Model::NotFound.new("Can't destroy #{self.class} with no id")
+      end
+
+      index.destroy(id)
+    end
+
     def new_record?
       !self.persisted?
     end

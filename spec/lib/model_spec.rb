@@ -226,6 +226,27 @@ describe Waistband::Model do
   end
 
   context "destroying" do
+
+    it "destroys a record" do
+      expect(saved.id).to be_present
+      saved_id = saved.id
+      TestModel.index.refresh
+      
+      expect{
+        saved.destroy
+        TestModel.index.refresh
+      }.to change{
+        TestModel.count
+      }.by(-1)
+
+      expect{ TestModel.find(saved_id) }.to raise_error(::Waistband::Errors::Model::NotFound, "Couldn't find TestModel with 'id'=#{saved_id}")
+    end
+
+    it "blows up when trying to destroy a new record" do
+      thing = TestModel.new
+      expect{ thing.destroy }.to raise_error(::Waistband::Errors::Model::NotFound, "Can't destroy TestModel with no id")
+    end
+
   end
 
   context "searching" do
