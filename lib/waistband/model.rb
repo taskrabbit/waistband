@@ -59,7 +59,15 @@ module Waistband
         new(found_attributes.merge(id: id, persisted: true))
       end
 
+      def count
+        query_hash = {_type: type_name}
+        index.search(query_hash).total_results
+      end
+
       def search(query_hash)
+        # add type to query_hash
+        query_hash.merge!(_type: type_name)
+
         hits = index.search(query_hash).hits
         hits.map do |hit|
           id = hit['_id']

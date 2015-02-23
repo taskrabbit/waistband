@@ -40,6 +40,13 @@ describe Waistband::Model do
     }
   end
 
+  let(:saved_id) do
+    thing = TestModel.new
+    thing.work_area = valid_work_area
+    expect(thing.save).to eql(true)
+    thing.id
+  end
+
 
   context "index" do
 
@@ -126,13 +133,6 @@ describe Waistband::Model do
 
   context "reading" do
 
-    let(:saved_id) do
-      thing = TestModel.new
-      thing.work_area = valid_work_area
-      expect(thing.save).to eql(true)
-      thing.id
-    end
-
     it "allows reading a previously saved object" do
       expect(saved_id).to be_present
 
@@ -180,6 +180,29 @@ describe Waistband::Model do
   end
 
   context "updating" do
+
+    it "allows updating a previously saved model" do
+      expect {
+        expect(saved_id).to be_present
+        TestModel.index.refresh
+      }.to change {
+        TestModel.count
+      }.by(1)
+
+      expect {
+        found = TestModel.find(saved_id)
+        expect(found.important).to eql(true)
+        found.important = false
+        expect(found.save).to eql(true)
+        TestModel.index.refresh
+      }.to_not change {
+        TestModel.count
+      }
+
+      found = TestModel.find(saved_id)
+      expect(found.important).to eql(false)
+    end
+
   end
 
   context "reloading" do
