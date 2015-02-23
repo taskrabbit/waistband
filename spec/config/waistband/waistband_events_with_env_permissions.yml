@@ -1,11 +1,11 @@
 development: &DEV
   name: events
   permissions:
-    create: false
-    delete_index: false
-    destroy: false
-    read: false
-    write: false
+    create: true
+    delete_index: true
+    destroy: true
+    read: true
+    write: true
   stringify: true
   settings:
     index:
@@ -19,3 +19,9 @@ development: &DEV
 test:
   <<: *DEV
   name: events_test
+  permissions:
+    create: true
+    delete_index: false
+    destroy: true
+    read: true
+    write: true

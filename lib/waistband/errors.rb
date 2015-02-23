@@ -2,11 +2,13 @@ module Waistband
   module Errors
 
     module Permissions
-      class Create < StandardError; end
-      class Delete < StandardError; end
-      class Destroy < StandardError; end
-      class Read < StandardError; end
-      class Write < StandardError; end
+      class PermissionError < StandardError; end
+
+      class Create < PermissionError; end
+      class DeleteIndex < PermissionError; end
+      class Destroy < PermissionError; end
+      class Read < PermissionError; end
+      class Write < PermissionError; end
     end
 
     class IndexExists < StandardError; end

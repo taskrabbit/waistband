@@ -4,11 +4,12 @@ describe "Waistband::Index - Permissions" do
 
   let(:index)  { Waistband::Index.new('events') }
   let(:index2) { Waistband::Index.new('events_with_permissions') }
+  let(:index3) { Waistband::Index.new('events_with_env_permissions') }
 
   it "detaults all permissions to true when not found" do
     expect(index.send(:permissions)).to eql({
       'create' => true,
-      'delete' => true,
+      'delete_index' => true,
       'destroy' => true,
       'read' => true,
       'write' => true
@@ -18,10 +19,20 @@ describe "Waistband::Index - Permissions" do
   it "allows overriding permissions" do
     expect(index2.send(:permissions)).to eql({
       'create' => false,
-      'delete' => false,
+      'delete_index' => false,
       'destroy' => false,
       'read' => false,
       'write' => false
+    })
+  end
+
+  it "allows environment specific overriding" do
+    expect(index3.send(:permissions)).to eql({
+      'create' => true,
+      'delete_index' => false,
+      'destroy' => true,
+      'read' => true,
+      'write' => true
     })
   end
 
@@ -34,7 +45,7 @@ describe "Waistband::Index - Permissions" do
   it "doesn't allow deleting" do
     expect {
       index2.delete!
-    }.to raise_error(Waistband::Errors::Permissions::Delete)
+    }.to raise_error(Waistband::Errors::Permissions::DeleteIndex)
   end
 
   it "doesn't allow destroying" do

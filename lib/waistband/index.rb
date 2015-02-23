@@ -92,7 +92,7 @@ module Waistband
     end
 
     def delete!
-      check_permission!('delete')
+      check_permission!('delete_index')
 
       client.indices.delete index: config_name
     rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
@@ -350,7 +350,7 @@ module Waistband
       end
 
       def check_permission!(permission)
-        raise "::Waistband::Errors::Permissions::#{permission.classify}".constantize.new("Don't have enough permissions to #{permission}") unless check_permission?(permission)
+        raise "::Waistband::Errors::Permissions::#{permission.classify}".constantize.new("Don't have enough permissions to #{permission} on index #{config_name}") unless check_permission?(permission)
       end
 
       def check_permission?(permission)
@@ -359,11 +359,11 @@ module Waistband
 
       def permissions
         @permissions ||= (config['permissions'] || {}).reverse_merge({
-          'create'  => true,
-          'delete'  => true,
-          'destroy' => true,
-          'read'    => true,
-          'write'   => true
+          'create'       => true,
+          'delete_index' => true,
+          'destroy'      => true,
+          'read'         => true,
+          'write'        => true
         }).with_indifferent_access
       end
 
