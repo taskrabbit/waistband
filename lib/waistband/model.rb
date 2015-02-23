@@ -140,6 +140,12 @@ module Waistband
       self.attributes[key.to_sym] = val
     end
 
+    def write_attributes(attributes = {})
+      attributes.each do |key, val|
+        write_attribute(key, val)
+      end
+    end
+
     ###############
     # Persistence #
     ###############
@@ -205,6 +211,15 @@ module Waistband
 
     def persisted?
       !!persisted
+    end
+
+    def reload
+      unless id
+        raise ::Waistband::Errors::Model::NotFound.new("Couldn't find #{self.class} with no id")
+      end
+
+      found_attributes = index.find(id)
+      write_attributes(found_attributes)
     end
 
     def digest

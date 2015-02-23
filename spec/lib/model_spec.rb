@@ -40,11 +40,11 @@ describe Waistband::Model do
     }
   end
 
-  let(:saved_id) do
+  let(:saved) do
     thing = TestModel.new
     thing.work_area = valid_work_area
     expect(thing.save).to eql(true)
-    thing.id
+    thing
   end
 
 
@@ -134,12 +134,12 @@ describe Waistband::Model do
   context "reading" do
 
     it "allows reading a previously saved object" do
-      expect(saved_id).to be_present
+      expect(saved.id).to be_present
 
-      found = TestModel.find(saved_id)
+      found = TestModel.find(saved.id)
       expect(found).to be_present
       expect(found).to be_a(TestModel)
-      expect(found.id).to eql(saved_id)
+      expect(found.id).to eql(saved.id)
       expect(found.work_area).to eql(valid_work_area)
     end
 
@@ -148,9 +148,9 @@ describe Waistband::Model do
     end
 
     it "when finding a record, it's never a new record" do
-      expect(saved_id).to be_present
+      expect(saved.id).to be_present
 
-      found = TestModel.find(saved_id)
+      found = TestModel.find(saved.id)
       expect(found).to be_present
       expect(found.new_record?).to eql(false)
     end
@@ -183,14 +183,14 @@ describe Waistband::Model do
 
     it "allows updating a previously saved model" do
       expect {
-        expect(saved_id).to be_present
+        expect(saved.id).to be_present
         TestModel.index.refresh
       }.to change {
         TestModel.count
       }.by(1)
 
       expect {
-        found = TestModel.find(saved_id)
+        found = TestModel.find(saved.id)
         expect(found.important).to eql(true)
         found.important = false
         expect(found.save).to eql(true)
@@ -199,13 +199,30 @@ describe Waistband::Model do
         TestModel.count
       }
 
-      found = TestModel.find(saved_id)
+      found = TestModel.find(saved.id)
       expect(found.important).to eql(false)
     end
 
   end
 
   context "reloading" do
+
+    it "allows reloading an object" do
+      expect(saved.id).to be_present
+      saved_id = saved.id
+
+      saved.work_area = nil
+      saved.reload
+
+      expect(saved.work_area).to eql(valid_work_area)
+      expect(saved.id).to eql(saved_id)
+    end
+
+    it "blows up when we attempt to reload a new record" do
+      thing = TestModel.new
+      expect { thing.reload }.to raise_error(::Waistband::Errors::Model::NotFound, "Couldn't find TestModel with no id")
+    end
+
   end
 
   context "destroying" do
