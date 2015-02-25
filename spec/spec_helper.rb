@@ -8,7 +8,10 @@ require 'waistband'
 require 'rspec'
 require 'timecop'
 require 'active_support/core_ext/integer/time'
-require 'debugger'
+
+unless ENV['ON_TRAVIS']
+  require 'debugger'
+end
 
 Dir["#{APP_DIR}/spec/support/**/*.rb"].each {|f| require f}
 
