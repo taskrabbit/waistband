@@ -123,7 +123,7 @@ module Waistband
         raise ::Waistband::Errors::UnableToSave.new("Unable to save to index: #{config_name}, type: #{_type}, id: #{id}: result: #{saved}")
       end
 
-      saved
+      !!saved['_id']
     end
 
     def save(*args)
