@@ -86,7 +86,7 @@ describe Waistband::Index do
   describe "storing" do
 
     it "stores data" do
-      expect(index.save('__test_write', {'ok' => 'yeah'})).to be true
+      expect(index.save('__test_write', {'ok' => 'yeah'})).to be_present
       expect(index.read('__test_write')).to eql({
         '_id' => '__test_write',
         '_index' => 'events_test',

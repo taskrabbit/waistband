@@ -1,0 +1,27 @@
+development: &DEV
+  name: events
+  permissions:
+    create: true
+    delete_index: true
+    destroy: true
+    read: true
+    write: true
+  stringify: true
+  settings:
+    index:
+      number_of_shards: 1
+      number_of_replicas: 1
+  mappings:
+    event:
+      _source:
+        includes: ["*"]
+
+test:
+  <<: *DEV
+  name: events_test
+  permissions:
+    create: true
+    delete_index: false
+    destroy: true
+    read: true
+    write: true

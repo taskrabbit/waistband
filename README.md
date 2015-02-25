@@ -114,6 +114,7 @@ development:
 * `name`: optional - name of the index.  You can (and probably should) have a different name for the index for your test environment.  If not specified, it defaults to the name of the yml file minus the `waistband_` portion, so in the above example, the index name would become `search_#{env}`, where env is your environment variable as defined in `Waistband::Configuration#setup` (determined by `RAILS_ENV` or `RACK_ENV`).
 * `stringify`: optional - determines wether whatever is stored into the index is going to be converted to a string before storage.  Usually false unless you need it to be true for specific cases, like if for some `key => value` pairs the value is of different types some times.
 * `connection`: optional - determines which server/s the index uses.  If not present, it'll use the default connection settings specified in `config/waistband.yml`.
+* `permissions`: optional - determines which permissions to allow on this index, please refer to the [permissions section](#permissions) for more information.
 
 ## Initializer
 
@@ -251,6 +252,30 @@ index.alias_exists?('my_super_events_alias') # => true
 ```
 
 The `alias` methods receives a param to define the alias name.  The same pattern can be used when using index versions.
+
+### Permissions
+
+We've found it safer to tighten up the permissions to determine which actions can be done on each index based on environments.  For example, you might want to allow an index to be created and deleted at will on the development or staging environments, but you probably don't want to allow it to be deleted on production.  To that effect, you're able to set permissions on each index's config file:
+
+```yml
+production:
+    permissions:
+        create: true
+        delete_index: false
+        destroy: true
+        read: true
+        write: true
+```
+
+By default, all permissions are true unless set otherwise.
+
+The specific permissions are:
+
+* `create`: can Waistband create the index?
+* `delete_index`: can Waistband delete the entire index?
+* `destroy`: can Waistband destroy an object in the index?
+* `read`: can Waistband `read`, `find`, or `find_result` in the index?
+* `write`: can Waistband `save` (create or update) an object to the index?
 
 ### Logging
 

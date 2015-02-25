@@ -1,14 +1,8 @@
 development: &DEV
-  stringify: false
-  log_level: 2 # warning
   settings:
     index:
       number_of_shards: 1
       number_of_replicas: 1
-  mappings:
-    search:
-      _source:
-        includes: ["*"]
 
 test:
   <<: *DEV

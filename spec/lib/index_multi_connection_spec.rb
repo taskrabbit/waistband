@@ -22,7 +22,7 @@ describe Waistband::Index do
   it "works" do
     index.delete
     index.create
-    index.save('testing123', {ok: 'yeah'})
+    saved = index.save('testing123', {ok: 'yeah'})
     index.refresh
     data = index.read('testing123')
     expect(data['_source']['ok']).to eql 'yeah'

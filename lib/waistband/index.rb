@@ -3,6 +3,7 @@ require 'active_support/core_ext/array/extract_options'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/object/try'
+require 'active_support/core_ext/hash/reverse_merge'
 require 'elasticsearch'
 
 module Waistband
@@ -39,12 +40,16 @@ module Waistband
     end
 
     def update_all_mappings
+      check_permission!('create')
+
       responses = types.map do |type|
         update_mapping(type).merge('_type' => type)
       end
     end
 
     def update_mapping(type)
+      check_permission!('create')
+
       properties = config['mappings'][type]['properties'] || {}
 
       mapping_hash = {type => {properties: properties}}
@@ -57,6 +62,8 @@ module Waistband
     end
 
     def update_settings
+      check_permission!('create')
+
       client.indices.put_settings(
         index: config_name,
         body: settings
@@ -70,7 +77,9 @@ module Waistband
     end
 
     def create!
-      client.indices.create index: config_name, body: config.except('name', 'stringify', 'log_level')
+      check_permission!('create')
+
+      client.indices.create index: config_name, body: config.except('name', 'permissions', 'stringify', 'log_level')
     rescue Elasticsearch::Transport::Transport::Errors::BadRequest => ex
       raise ex unless ex.message.to_s =~ /IndexAlreadyExistsException/
       raise ::Waistband::Errors::IndexExists.new("Index already exists")
@@ -83,13 +92,17 @@ module Waistband
     end
 
     def delete!
+      check_permission!('delete_index')
+
       client.indices.delete index: config_name
     rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
       raise ex unless ex.message.to_s =~ /IndexMissingException/
       raise ::Waistband::Errors::IndexNotFound.new("Index not found")
     end
 
-    def save(*args)
+    def save!(*args)
+      check_permission!('write')
+
       body_hash = args.extract_options!
       id = args.first
       _type = body_hash.delete(:_type) || body_hash.delete('_type') || default_type_name
@@ -106,7 +119,17 @@ module Waistband
         body: body_hash
       )
 
-      saved['_id'].present?
+      unless saved['_id'].present?
+        raise ::Waistband::Errors::UnableToSave.new("Unable to save to index: #{config_name}, type: #{_type}, id: #{id}: result: #{saved}")
+      end
+
+      saved
+    end
+
+    def save(*args)
+      save!(*args)
+    rescue ::Waistband::Errors::UnableToSave => ex
+      false
     end
 
     def find(id, options = {})
@@ -138,6 +161,8 @@ module Waistband
     end
 
     def read!(id, options = {})
+      check_permission!('read')
+
       options = options.with_indifferent_access
       type = options[:_type] || default_type_name
 
@@ -155,6 +180,8 @@ module Waistband
     end
 
     def destroy!(id, options = {})
+      check_permission!('destroy')
+
       options = options.with_indifferent_access
       type = options[:_type] || default_type_name
 
@@ -297,7 +324,15 @@ module Waistband
       end
 
       def default_type_name
+        return default_type_name_from_mappings if default_type_name_from_mappings
         @index_name.singularize
+      end
+
+      def default_type_name_from_mappings
+        @default_type_name_from_mappings ||= begin
+          mappings = (config['mappings'] || {})
+          mappings.keys.first
+        end
       end
 
       def settings
@@ -312,6 +347,24 @@ module Waistband
       def base_config_name
         return config['name'] if config['name']
         "#{@index_name}_#{::Waistband.config.env}"
+      end
+
+      def check_permission!(permission)
+        raise "::Waistband::Errors::Permissions::#{permission.classify}".constantize.new("Don't have enough permissions to #{permission} on index #{config_name}") unless check_permission?(permission)
+      end
+
+      def check_permission?(permission)
+        !!permissions[permission]
+      end
+
+      def permissions
+        @permissions ||= (config['permissions'] || {}).reverse_merge({
+          'create'       => true,
+          'delete_index' => true,
+          'destroy'      => true,
+          'read'         => true,
+          'write'        => true
+        }).with_indifferent_access
       end
 
     # /private
