@@ -4,5 +4,8 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rspec', '~> 3.1.0'
-gem 'debugger', '~> 1.6.8'
 gem 'timecop', '~> 0.7.1'
+
+unless ENV['ON_TRAVIS']
+  gem 'debugger', '~> 1.6.8'
+end
