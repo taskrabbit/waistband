@@ -1,5 +1,7 @@
 # Waistband
 
+[![Build Status](https://travis-ci.org/taskrabbit/waistband.png?branch=master)](https://travis-ci.org/taskrabbit/waistband)
+
 Configuration and sensible defaults for ElasticSearch on Ruby.  Handles configuration, index creation, quality of life, etc, of Elastic Search in Ruby.
 
 Waistband doens't handle connections or API requests, it merely acts as a translator between commonly used patterns and the underlying elasticsearch gems.
