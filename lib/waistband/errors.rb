@@ -11,6 +11,11 @@ module Waistband
       class Write < PermissionError; end
     end
 
+    module Model
+      class UnableToSave < StandardError; end
+      class NotFound < StandardError; end
+    end
+
     class IndexExists < StandardError; end
     class IndexNotFound < StandardError; end
     class NoSearchHits < StandardError; end

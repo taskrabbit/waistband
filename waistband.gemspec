@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'activesupport',  '>= 3.0'
+  spec.add_dependency 'activemodel',    '>= 3.0'
   spec.add_dependency 'elasticsearch',  '~> 1.0'
   spec.add_dependency 'json',           '~> 1.8'
 

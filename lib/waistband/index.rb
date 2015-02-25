@@ -123,7 +123,7 @@ module Waistband
         raise ::Waistband::Errors::UnableToSave.new("Unable to save to index: #{config_name}, type: #{_type}, id: #{id}: result: #{saved}")
       end
 
-      saved
+      !!saved['_id']
     end
 
     def save(*args)
@@ -196,6 +196,10 @@ module Waistband
       page, page_size = get_page_info body_hash
       body_hash       = parse_search_body(body_hash)
       search_hash     = {index: config_name, body: body_hash}
+
+      if(body_hash.has_key?(:_type))
+        search_hash.merge!(type: body_hash.delete(:_type))
+      end
 
       search_hash[:from] = body_hash[:from] if body_hash[:from]
       search_hash[:size] = body_hash[:size] if body_hash[:size]
