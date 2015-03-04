@@ -42,7 +42,7 @@ module Waistband
     def update_all_mappings
       check_permission!('create')
 
-      responses = types.map do |type|
+      types.map do |type|
         update_mapping(type).merge('_type' => type)
       end
     end
@@ -72,7 +72,7 @@ module Waistband
 
     def create
       create!
-    rescue ::Waistband::Errors::IndexExists => ex
+    rescue ::Waistband::Errors::IndexExists
       true
     end
 
@@ -87,7 +87,7 @@ module Waistband
 
     def delete
       delete!
-    rescue ::Waistband::Errors::IndexNotFound => ex
+    rescue ::Waistband::Errors::IndexNotFound
       true
     end
 
@@ -128,7 +128,7 @@ module Waistband
 
     def save(*args)
       save!(*args)
-    rescue ::Waistband::Errors::UnableToSave => ex
+    rescue ::Waistband::Errors::UnableToSave
       false
     end
 
@@ -200,7 +200,9 @@ module Waistband
       search_hash[:from] = body_hash[:from] if body_hash[:from]
       search_hash[:size] = body_hash[:size] if body_hash[:size]
 
-      search_hash = client.search(search_hash)
+      search_hash = with_query_logging(search_hash) do
+        client.search(search_hash)
+      end
 
       ::Waistband::SearchResults.new(search_hash, page: page, page_size: page_size)
     end
@@ -244,7 +246,27 @@ module Waistband
       end
     end
 
+    def logger
+      client.transport.logger
+    end
+
     private
+
+      def with_query_logging(query_hash)
+        return unless logger
+        return if logger.level > 0
+
+        start_time = Time.now
+
+        result = yield
+
+        end_time = Time.now
+        diff_in_milli = (end_time - start_time) * 1000
+
+        log(:debug, "Query took (#{diff_in_milli}ms) :: #{query_hash.inspect}")
+
+        result
+      end
 
       def verify_body_size(index_config_name, type, id, body_hash)
         body_json = body_hash.to_json
@@ -255,18 +277,14 @@ module Waistband
           msg << "Current size: #{size}.  Limit: #{BODY_SIZE_LIMIT}.  "
           msg << "index_config_name: #{index_config_name}.  _type: #{type}.  id: #{id}.  "
           msg << "body: #{body_json[0, 1000]}"
-          log_warning(msg)
+          log(:warn, msg)
         end
       end
 
-      def log_warning(msg)
+      def log(level, msg)
         return unless logger
 
-        logger.warn "[WAISTBAND :: WARNING] #{msg}"
-      end
-
-      def logger
-        client.transport.logger
+        logger.send(level, "[WAISTBAND :: #{level.to_s.upcase}] #{msg}")
       end
 
       def client_config_hash

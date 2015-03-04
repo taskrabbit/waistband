@@ -346,6 +346,17 @@ describe Waistband::Index do
       index2.search({})
     end
 
+    it "logs time it took to complete queries, etc" do
+      # fake out the time difference
+      allow_any_instance_of(Time).to receive(:-) { 100 }
+      # set it to debug
+      index2.logger.level = 0
+
+      expect(index2.logger).to receive(:debug).with("").once
+
+      index2.search({})
+    end
+
   end
 
 end
