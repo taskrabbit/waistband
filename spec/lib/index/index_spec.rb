@@ -69,18 +69,26 @@ describe Waistband::Index do
     expect(response['acknowledged']).to be true
   end
 
-  it "proxies to the client's search" do
-    result = index.search({})
-    expect(result).to be_a Waistband::SearchResults
-    expect(result.took).to be_present
-    expect(result.hits).to be_an Array
-  end
-
   it "correctly sets hosts" do
     expect(index.client.send(:hosts)).to eql([
       {"host" => "localhost", "port" => 9200, "protocol" => "http"},
       {"host" => "127.0.0.1", "port" => 9200, "protocol" => "http"}
     ])
+  end
+
+  describe "searching" do
+
+    it "proxies to the client's search" do
+      result = index.search({})
+      expect(result).to be_a Waistband::SearchResults
+      expect(result.took).to be_present
+      expect(result.hits).to be_an Array
+    end
+
+    it "does not blow up when an index type is specified" do
+      expect{ index.search({_type: 'event'}) }.to_not raise_error
+    end
+
   end
 
   describe "storing" do
