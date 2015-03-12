@@ -86,7 +86,7 @@ describe Waistband::Index do
     end
 
     it "does not blow up when an index type is specified" do
-      expect{ index.search({type: 'event'}) }.to_not raise_error
+      expect{ index.search({_type: 'event'}) }.to_not raise_error
     end
 
   end
