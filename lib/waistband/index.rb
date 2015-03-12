@@ -195,8 +195,10 @@ module Waistband
     def search(body_hash)
       page, page_size = get_page_info body_hash
       body_hash       = parse_search_body(body_hash)
+      type            = body_hash.delete(:type)
       search_hash     = {index: config_name, body: body_hash}
 
+      search_hash[:type] = type if type
       search_hash[:from] = body_hash[:from] if body_hash[:from]
       search_hash[:size] = body_hash[:size] if body_hash[:size]
 
