@@ -207,6 +207,22 @@ module Waistband
       ::Waistband::SearchResults.new(search_hash, page: page, page_size: page_size)
     end
 
+    def suggest(body_hash)
+      page, page_size = get_page_info body_hash
+      body_hash       = parse_search_body(body_hash)
+      _type           = body_hash.delete(:_type)
+      suggest_hash    = {index: config_name, body: body_hash}
+
+      search_hash[:type] = _type if _type
+      search_hash[:from] = body_hash[:from] if body_hash[:from]
+      search_hash[:size] = body_hash[:size] if body_hash[:size]
+
+      suggest_hash = client.suggest(suggest_hash)
+
+      # TODO: WRITE WRAPPER OBJECT
+      suggest_hash
+    end
+
     def alias(alias_name)
       alias_name = full_alias_name alias_name
       client.indices.put_alias(
