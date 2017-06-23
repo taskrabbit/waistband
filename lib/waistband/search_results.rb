@@ -10,7 +10,7 @@ module Waistband
       def initialize(arr, options)
         @current_page = (options[:current_page] || 1).to_i
         @total_count = (options[:total_count] || arr.length).to_i
-        @per_page = (options[:per_page] || ::Waistband::SearchResults::DEFAULT_PAGE_SIZE).to_i
+        @per_page = (options[:page_size] || options[:per_page] || ::Waistband::SearchResults::DEFAULT_PAGE_SIZE).to_i
         @num_pages = @total_pages = (options[:num_pages] || (@total_count.to_f / @per_page).ceil)
         @limit_value = options[:limit]
         super(arr)
