@@ -10,7 +10,7 @@ require 'timecop'
 require 'active_support/core_ext/integer/time'
 
 unless ENV['ON_TRAVIS']
-  require 'debugger'
+  require 'byebug'
 end
 
 Dir["#{APP_DIR}/spec/support/**/*.rb"].each {|f| require f}

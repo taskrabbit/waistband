@@ -1,8 +1,10 @@
 language: ruby
 
 rvm:
-  - 2.0.0
+  - 2.0.0-p648
   - 2.1.1
+  - 2.2.7
+  - 2.3.3
 
 script: bundle exec rspec spec/
 
