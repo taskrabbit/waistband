@@ -1,6 +1,6 @@
-require 'waistband/result'
+require 'suspenders/result'
 
-module Waistband
+module Suspenders
   class SearchResults
 
     class PaginatedArray < Array
@@ -10,7 +10,7 @@ module Waistband
       def initialize(arr, options)
         @current_page = (options[:current_page] || 1).to_i
         @total_count = (options[:total_count] || arr.length).to_i
-        @per_page = (options[:page_size] || options[:per_page] || ::Waistband::SearchResults::DEFAULT_PAGE_SIZE).to_i
+        @per_page = (options[:page_size] || options[:per_page] || ::Suspenders::SearchResults::DEFAULT_PAGE_SIZE).to_i
         @num_pages = @total_pages = (options[:num_pages] || (@total_count.to_f / @per_page).ceil)
         @limit_value = options[:limit]
         super(arr)
@@ -27,28 +27,28 @@ module Waistband
     end
 
     def hits
-      raise ::Waistband::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
+      raise ::Suspenders::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
       @search_hash['hits']['hits']
     end
 
     def results
-      raise ::Waistband::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
+      raise ::Suspenders::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
 
       hits.map do |hit|
-        ::Waistband::Result.new(hit)
+        ::Suspenders::Result.new(hit)
       end
     end
 
     def paginated_hits
-      ::Waistband::SearchResults::PaginatedArray.new(hits, current_page: @page, page_size: @page_size, total_count: total_results)
+      ::Suspenders::SearchResults::PaginatedArray.new(hits, current_page: @page, page_size: @page_size, total_count: total_results)
     end
 
     def paginated_results
-      ::Waistband::SearchResults::PaginatedArray.new(results, current_page: @page, page_size: @page_size, total_count: total_results)
+      ::Suspenders::SearchResults::PaginatedArray.new(results, current_page: @page, page_size: @page_size, total_count: total_results)
     end
 
     def total_results
-      raise ::Waistband::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
+      raise ::Suspenders::Errors::NoSearchHits.new("No search hits!") unless @search_hash['hits']
       @search_hash['hits']['total']
     end
 

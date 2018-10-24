@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'waistband/version'
+require 'suspenders/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "waistband"
-  spec.version       = Waistband::VERSION
+  spec.name          = "suspenders"
+  spec.version       = Suspenders::VERSION
   spec.authors       = ["David Jairala"]
   spec.email         = ["davidjairala@gmail.com"]
   spec.description   = %q{Handles configuration, index creation, quality of life, etc, of Elastic Search in Ruby}
   spec.summary       = %q{Configuration and sensible defaults for ElasticSearch on Ruby}
-  spec.homepage      = "https://github.com/taskrabbit/waistband"
+  spec.homepage      = "https://github.com/taskrabbit/suspenders"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

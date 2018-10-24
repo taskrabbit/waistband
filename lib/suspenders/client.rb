@@ -1,4 +1,4 @@
-module Waistband
+module Suspenders
   class Client
 
     class << self

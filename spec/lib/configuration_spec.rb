@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Waistband::Configuration do
+describe Suspenders::Configuration do
 
-  let(:config) { Waistband.config }
+  let(:config) { Suspenders.config }
 
   it "loads config yml" do
     expect(config.timeout).to eql 2
@@ -19,28 +19,28 @@ describe Waistband::Configuration do
   end
 
   it "proxies the client" do
-    expect(::Waistband.config.client).to be_a ::Waistband::Client
-    expect(::Waistband.config.client.connection).to be_a ::Elasticsearch::Transport::Client
-    expect(::Waistband.client).to be_a ::Waistband::Client
+    expect(::Suspenders.config.client).to be_a ::Suspenders::Client
+    expect(::Suspenders.config.client.connection).to be_a ::Elasticsearch::Transport::Client
+    expect(::Suspenders.client).to be_a ::Suspenders::Client
   end
 
   it "permits passing in an adapter to use to the client" do
-    original_config = YAML.load_file(File.join(::Waistband.config.config_dir, 'waistband.yml'))['test']
+    original_config = YAML.load_file(File.join(::Suspenders.config.config_dir, 'suspenders.yml'))['test']
 
-    expect(::Waistband.config.instance_variable_get('@adapter')).to be_nil
+    expect(::Suspenders.config.instance_variable_get('@adapter')).to be_nil
 
     expect(YAML).to receive(:load).and_return({'test' => original_config.merge({'adapter' => :net_http})}).at_least(:once)
-    ::Waistband.config.setup
-    expect(::Waistband.config.instance_variable_get('@adapter')).to eql :net_http
-    expect(::Waistband.client.transport.options[:adapter]).to eql :net_http
+    ::Suspenders.config.setup
+    expect(::Suspenders.config.instance_variable_get('@adapter')).to eql :net_http
+    expect(::Suspenders.client.transport.options[:adapter]).to eql :net_http
   end
 
   it "permits changing the timeout on command" do
-    expect(::Waistband.config.send(:timeout)).to eql 2
-    ::Waistband.config.timeout = 10
-    expect(::Waistband.config.send(:timeout)).to eql 10
-    ::Waistband.config.reset_timeout
-    expect(::Waistband.config.send(:timeout)).to eql 2
+    expect(::Suspenders.config.send(:timeout)).to eql 2
+    ::Suspenders.config.timeout = 10
+    expect(::Suspenders.config.send(:timeout)).to eql 10
+    ::Suspenders.config.reset_timeout
+    expect(::Suspenders.config.send(:timeout)).to eql 2
   end
 
   it "allows setting false config values" do

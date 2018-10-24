@@ -1,4 +1,4 @@
-module Waistband
+module Suspenders
   module Errors
 
     module Permissions

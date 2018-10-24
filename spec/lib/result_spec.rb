@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ::Waistband::Result do
+describe ::Suspenders::Result do
 
   let(:result_hash) do
     {
@@ -17,7 +17,7 @@ describe ::Waistband::Result do
     }
   end
 
-  let(:result) { ::Waistband::Result.new(result_hash) }
+  let(:result) { ::Suspenders::Result.new(result_hash) }
 
   it "provides accessors for all default fields" do
     expect(result._id).to eql 'a2081c0ce39b25d50b0a4be3c116ee7f'

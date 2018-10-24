@@ -1,4 +1,4 @@
-module Waistband
+module Suspenders
   class StringifiedArray < Array
 
     def stringify_all

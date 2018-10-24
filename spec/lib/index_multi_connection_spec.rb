@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Waistband::Index do
+describe Suspenders::Index do
 
-  let(:index) { Waistband::Index.new('multi_connection_events') }
+  let(:index) { Suspenders::Index.new('multi_connection_events') }
   let(:client) { index.client }
 
   it "grabs connection data from the index's settings" do
-    expect(client).to be_a(::Waistband::Client)
+    expect(client).to be_a(::Suspenders::Client)
     expect(client.connection).to be_a(::Elasticsearch::Transport::Client)
     expect(client.instance_variable_get('@servers')).to eql({"server1"=>{"host"=>"127.0.0.1", "port"=>9200, "protocol"=>"http"}})
   end

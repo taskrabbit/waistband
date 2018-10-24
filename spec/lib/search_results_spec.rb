@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ::Waistband::SearchResults do
+describe ::Suspenders::SearchResults do
 
   let(:search_hash) do
     {
@@ -30,7 +30,7 @@ describe ::Waistband::SearchResults do
     }
   end
 
-  let(:results) { ::Waistband::SearchResults.new(search_hash, page_size: 10) }
+  let(:results) { ::Suspenders::SearchResults.new(search_hash, page_size: 10) }
 
   it "provides a method interface for the results hash array" do
     expect(results.took).to eql 1
@@ -59,7 +59,7 @@ describe ::Waistband::SearchResults do
 
     result = results.results.first
 
-    expect(result).to be_a ::Waistband::Result
+    expect(result).to be_a ::Suspenders::Result
     expect(result._id).to eql 'a2081c0ce39b25d50b0a4be3c116ee7f'
     expect(result._score).to be_nil
     expect(result._type).to eql 'bus_event'
@@ -80,7 +80,7 @@ describe ::Waistband::SearchResults do
     it "provides a paginated array compatible with a readonly Kaminari array" do
       load 'active_support/concern.rb'
 
-      expect(results.paginated_hits).to be_a ::Waistband::SearchResults::PaginatedArray
+      expect(results.paginated_hits).to be_a ::Suspenders::SearchResults::PaginatedArray
       expect(results.paginated_hits.total_pages).to eql 1
       expect(results.paginated_hits.current_page).to eql 1
       expect(results.paginated_hits.instance_variable_get('@per_page')).to eql 10
@@ -93,7 +93,7 @@ describe ::Waistband::SearchResults do
     it "provides a paginated array compatible with a readonly Kaminari array" do
       load 'active_support/concern.rb'
 
-      expect(results.paginated_results).to be_a ::Waistband::SearchResults::PaginatedArray
+      expect(results.paginated_results).to be_a ::Suspenders::SearchResults::PaginatedArray
       expect(results.paginated_results.total_pages).to eql 1
       expect(results.paginated_results.current_page).to eql 1
       expect(results.paginated_hits.instance_variable_get('@per_page')).to eql 10

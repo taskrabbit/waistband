@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in waistband.gemspec
+# Specify your gem's dependencies in suspenders.gemspec
 gemspec
 
 gem 'rspec', '~> 3.1.0'

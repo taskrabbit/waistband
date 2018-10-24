@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe "Waistband::Index - Permissions" do
+describe "Suspenders::Index - Permissions" do
 
-  let(:index)  { Waistband::Index.new('events') }
-  let(:index2) { Waistband::Index.new('events_with_permissions') }
-  let(:index3) { Waistband::Index.new('events_with_env_permissions') }
+  let(:index)  { Suspenders::Index.new('events') }
+  let(:index2) { Suspenders::Index.new('events_with_permissions') }
+  let(:index3) { Suspenders::Index.new('events_with_env_permissions') }
 
   it "detaults all permissions to true when not found" do
     expect(index.send(:permissions)).to eql({
@@ -39,43 +39,43 @@ describe "Waistband::Index - Permissions" do
   it "doesn't allow writing" do
     expect {
       index2.create!
-    }.to raise_error(Waistband::Errors::Permissions::Create)
+    }.to raise_error(Suspenders::Errors::Permissions::Create)
   end
 
   it "doesn't allow deleting" do
     expect {
       index2.delete!
-    }.to raise_error(Waistband::Errors::Permissions::DeleteIndex)
+    }.to raise_error(Suspenders::Errors::Permissions::DeleteIndex)
   end
 
   it "doesn't allow destroying" do
     expect {
       index2.destroy!('123')
-    }.to raise_error(Waistband::Errors::Permissions::Destroy)
+    }.to raise_error(Suspenders::Errors::Permissions::Destroy)
   end
 
   it "doesn't allow reading" do
     expect {
       index2.read!('123')
-    }.to raise_error(Waistband::Errors::Permissions::Read)
+    }.to raise_error(Suspenders::Errors::Permissions::Read)
   end
 
   it "doesn't allow finding" do
     expect {
       index2.find!('123')
-    }.to raise_error(Waistband::Errors::Permissions::Read)
+    }.to raise_error(Suspenders::Errors::Permissions::Read)
   end
 
   it "doesn't allow read_resulting" do
     expect {
       index2.read_result!('123')
-    }.to raise_error(Waistband::Errors::Permissions::Read)
+    }.to raise_error(Suspenders::Errors::Permissions::Read)
   end
 
   it "doesn't allow writing" do
     expect {
       index2.save!('123', {ok: 'nook'})
-    }.to raise_error(Waistband::Errors::Permissions::Write)
+    }.to raise_error(Suspenders::Errors::Permissions::Write)
   end
 
 end

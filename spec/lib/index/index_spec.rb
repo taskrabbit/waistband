@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Waistband::Index do
+describe Suspenders::Index do
 
-  let(:index)   { Waistband::Index.new('events') }
-  let(:index2)  { Waistband::Index.new('search') }
+  let(:index)   { Suspenders::Index.new('events') }
+  let(:index2)  { Suspenders::Index.new('search') }
   let(:attrs)   { {'ok' => {'yeah' => true}} }
 
   it "initializes values" do
@@ -23,7 +23,7 @@ describe Waistband::Index do
     expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
 
     expect{ index.create! }.to_not raise_error
-    expect{ index.create! }.to raise_error(::Waistband::Errors::IndexExists, "Index already exists")
+    expect{ index.create! }.to raise_error(::Suspenders::Errors::IndexExists, "Index already exists")
   end
 
   it "doesn't blow up on creation when using the non-bang method" do
@@ -42,11 +42,11 @@ describe Waistband::Index do
 
   it "blows up when trying to delete an index that does not exist" do
     index.delete!
-    expect { index.delete! }.to raise_error(::Waistband::Errors::IndexNotFound)
+    expect { index.delete! }.to raise_error(::Suspenders::Errors::IndexNotFound)
   end
 
   it "updates the index's mappings" do
-    index = Waistband::Index.new('geo')
+    index = Suspenders::Index.new('geo')
     expect{ index.create }.to_not raise_error
 
     response = index.update_mapping('geo')
@@ -80,7 +80,7 @@ describe Waistband::Index do
 
     it "proxies to the client's search" do
       result = index.search({})
-      expect(result).to be_a Waistband::SearchResults
+      expect(result).to be_a Suspenders::SearchResults
       expect(result.took).to be_present
       expect(result.hits).to be_an Array
     end
@@ -144,7 +144,7 @@ describe Waistband::Index do
       result = index.read_result!('__test_write')
 
       expect(result).to be_present
-      expect(result).to be_a Waistband::Result
+      expect(result).to be_a Suspenders::Result
       expect(result._id).to eql '__test_write'
       expect(result.ok).to eql '{"yeah"=>true}'
     end
@@ -218,7 +218,7 @@ describe Waistband::Index do
 
     describe 'version option' do
 
-      let(:sharded_index) { Waistband::Index.new('events', version: 1) }
+      let(:sharded_index) { Suspenders::Index.new('events', version: 1) }
 
       it 'behaves exactly like a subs specified subindex' do
         expect(sharded_index.send(:config_name)).to eql 'events_test__version_1'
@@ -236,27 +236,27 @@ describe Waistband::Index do
       it "creates the sharded index with the same mappings as the parent" do
         sharded_index.delete
 
-        expect(Waistband::Index.new('events', version: 1).exists?).to be false
+        expect(Suspenders::Index.new('events', version: 1).exists?).to be false
 
         expect {
           sharded_index.create!
         }.to_not raise_error
 
-        expect(Waistband::Index.new('events', version: 1).exists?).to be true
+        expect(Suspenders::Index.new('events', version: 1).exists?).to be true
       end
 
     end
 
     describe 'subs option' do
 
-      let(:sharded_index) { Waistband::Index.new('events', subs: %w(2013 01)) }
+      let(:sharded_index) { Suspenders::Index.new('events', subs: %w(2013 01)) }
 
       it "permits subbing the index" do
         expect(sharded_index.send(:config_name)).to eql 'events_test__2013_01'
       end
 
       it "permits sharding into singles" do
-        index = Waistband::Index.new 'events', subs: '2013'
+        index = Suspenders::Index.new 'events', subs: '2013'
         expect(index.send(:config_name)).to eql 'events_test__2013'
       end
 
@@ -279,7 +279,7 @@ describe Waistband::Index do
       describe 'no configged index name' do
 
         it "gets a default name that makes sense for the index when not defined" do
-          index = Waistband::Index.new 'events_no_name', subs: %w(2013 01)
+          index = Suspenders::Index.new 'events_no_name', subs: %w(2013 01)
           expect(index.send(:config_name)).to eql 'events_no_name_test__2013_01'
         end
 
@@ -292,7 +292,7 @@ describe Waistband::Index do
   describe '#base_config_name' do
 
     it "gets a default name that makes sense for the index when not defined" do
-      index = Waistband::Index.new 'events_no_name'
+      index = Suspenders::Index.new 'events_no_name'
       expect(index.send(:base_config_name)).to eql 'events_no_name_test'
     end
 
@@ -326,7 +326,7 @@ describe Waistband::Index do
     describe 'versioning' do
 
       it "invoking full_alias_name doesn't mess with @index_name" do
-        index = Waistband::Index.new('events', version: 1)
+        index = Suspenders::Index.new('events', version: 1)
         index.delete
         index.create
         index.alias('aliased_events')
@@ -341,7 +341,7 @@ describe Waistband::Index do
   describe 'logging' do
 
     before do
-      Waistband.config.logger = FakeLog.new
+      Suspenders.config.logger = FakeLog.new
     end
 
     it "sets the index's client transport logger" do
@@ -350,7 +350,7 @@ describe Waistband::Index do
     end
 
     it "logs" do
-      expect(Waistband.config.logger).to receive(:info).with(kind_of(String)).once
+      expect(Suspenders.config.logger).to receive(:info).with(kind_of(String)).once
       index2.search({})
     end
 

@@ -1,4 +1,4 @@
-module Waistband
+module Suspenders
   class Result
 
     def initialize(result_hash)

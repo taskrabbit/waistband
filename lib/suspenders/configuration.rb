@@ -3,7 +3,7 @@ require 'singleton'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'digest/sha1'
 
-module Waistband
+module Suspenders
   class Configuration
 
     include Singleton
@@ -24,14 +24,14 @@ module Waistband
       raise "Couldn't find configuration directory #{config_dir}"         unless File.exist?(config_dir)
 
       @env         ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
-      yml            = load_yml_with_erb(File.join(config_dir, 'waistband.yml'))
+      yml            = load_yml_with_erb(File.join(config_dir, 'suspenders.yml'))
       @yml_config    = yml[@env].with_indifferent_access
       @adapter       = @yml_config.delete('adapter')
     end
 
     def index(name)
       return @indexes[name] if @indexes[name]
-      yml = load_yml_with_erb(File.join(config_dir, "waistband_#{name}.yml"))
+      yml = load_yml_with_erb(File.join(config_dir, "suspenders_#{name}.yml"))
       @indexes[name] = yml[@env].with_indifferent_access
     end
 
@@ -41,7 +41,7 @@ module Waistband
     end
 
     def client
-      ::Waistband::Client.from_config(client_config_hash)
+      ::Suspenders::Client.from_config(client_config_hash)
     end
 
     def reset_timeout

@@ -6,7 +6,7 @@ require 'active_support/core_ext/object/try'
 require 'active_support/core_ext/hash/reverse_merge'
 require 'elasticsearch'
 
-module Waistband
+module Suspenders
   class Index
 
     BODY_SIZE_LIMIT = 100_000
@@ -72,7 +72,7 @@ module Waistband
 
     def create
       create!
-    rescue ::Waistband::Errors::IndexExists => ex
+    rescue ::Suspenders::Errors::IndexExists => ex
       true
     end
 
@@ -82,12 +82,12 @@ module Waistband
       client.indices.create index: config_name, body: config.except('name', 'permissions', 'stringify', 'log_level')
     rescue Elasticsearch::Transport::Transport::Errors::BadRequest => ex
       raise ex unless ex.message.to_s =~ /IndexAlreadyExistsException/
-      raise ::Waistband::Errors::IndexExists.new("Index already exists")
+      raise ::Suspenders::Errors::IndexExists.new("Index already exists")
     end
 
     def delete
       delete!
-    rescue ::Waistband::Errors::IndexNotFound => ex
+    rescue ::Suspenders::Errors::IndexNotFound => ex
       true
     end
 
@@ -97,7 +97,7 @@ module Waistband
       client.indices.delete index: config_name
     rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
       raise ex unless ex.message.to_s =~ /IndexMissingException/
-      raise ::Waistband::Errors::IndexNotFound.new("Index not found")
+      raise ::Suspenders::Errors::IndexNotFound.new("Index not found")
     end
 
     def save!(*args)
@@ -120,7 +120,7 @@ module Waistband
       )
 
       unless saved['_id'].present?
-        raise ::Waistband::Errors::UnableToSave.new("Unable to save to index: #{config_name}, type: #{_type}, id: #{id}: result: #{saved}")
+        raise ::Suspenders::Errors::UnableToSave.new("Unable to save to index: #{config_name}, type: #{_type}, id: #{id}: result: #{saved}")
       end
 
       saved
@@ -128,7 +128,7 @@ module Waistband
 
     def save(*args)
       save!(*args)
-    rescue ::Waistband::Errors::UnableToSave => ex
+    rescue ::Suspenders::Errors::UnableToSave => ex
       false
     end
 
@@ -151,7 +151,7 @@ module Waistband
 
     def read_result!(id, options = {})
       hit = read!(id, options)
-      ::Waistband::Result.new(hit)
+      ::Suspenders::Result.new(hit)
     end
 
     def read(id, options = {})
@@ -204,7 +204,7 @@ module Waistband
 
       search_hash = client.search(search_hash)
 
-      ::Waistband::SearchResults.new(search_hash, page: page, page_size: page_size)
+      ::Suspenders::SearchResults.new(search_hash, page: page, page_size: page_size)
     end
 
     def alias(alias_name)
@@ -224,20 +224,20 @@ module Waistband
     end
 
     def config
-      ::Waistband.config.index @index_name
+      ::Suspenders.config.index @index_name
     end
 
     def client
       @client ||= begin
 
         _client = if client_config_hash
-          ::Waistband::Client.from_config(client_config_hash)
+          ::Suspenders::Client.from_config(client_config_hash)
         else
-          ::Waistband.config.client
+          ::Suspenders.config.client
         end
 
-        if @log_level && Waistband.config.logger
-          _client.transport.logger       = Waistband.config.logger
+        if @log_level && Suspenders.config.logger
+          _client.transport.logger       = Suspenders.config.logger
           _client.transport.logger.level = @log_level
         end
 
@@ -300,7 +300,7 @@ module Waistband
 
       def full_alias_name(alias_name)
         unless custom_name?
-          "#{alias_name}_#{::Waistband.config.env}"
+          "#{alias_name}_#{::Suspenders.config.env}"
         else
           alias_name
         end
@@ -312,9 +312,9 @@ module Waistband
 
       def stringify_all(data)
         data = if data.is_a? Array
-          ::Waistband::StringifiedArray.new data
+          ::Suspenders::StringifiedArray.new data
         elsif data.is_a? Hash
-          ::Waistband::StringifiedHash.new_from data
+          ::Suspenders::StringifiedHash.new_from data
         end
 
         data = data.stringify_all if data.respond_to? :stringify_all
@@ -348,11 +348,11 @@ module Waistband
 
       def base_config_name
         return config['name'] if config['name']
-        "#{@index_name}_#{::Waistband.config.env}"
+        "#{@index_name}_#{::Suspenders.config.env}"
       end
 
       def check_permission!(permission)
-        raise "::Waistband::Errors::Permissions::#{permission.classify}".constantize.new("Don't have enough permissions to #{permission} on index #{config_name}") unless check_permission?(permission)
+        raise "::Suspenders::Errors::Permissions::#{permission.classify}".constantize.new("Don't have enough permissions to #{permission} on index #{config_name}") unless check_permission?(permission)
       end
 
       def check_permission?(permission)
