@@ -4,7 +4,7 @@ require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/object/try'
 require 'active_support/core_ext/hash/reverse_merge'
-require 'elasticsearch'
+require 'stretchysearch'
 
 module Suspenders
   class Index
@@ -80,7 +80,7 @@ module Suspenders
       check_permission!('create')
 
       client.indices.create index: config_name, body: config.except('name', 'permissions', 'stringify', 'log_level')
-    rescue Elasticsearch::Transport::Transport::Errors::BadRequest => ex
+    rescue Stretchysearch::Transport::Transport::Errors::BadRequest => ex
       raise ex unless ex.message.to_s =~ /IndexAlreadyExistsException/
       raise ::Suspenders::Errors::IndexExists.new("Index already exists")
     end
@@ -95,7 +95,7 @@ module Suspenders
       check_permission!('delete_index')
 
       client.indices.delete index: config_name
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
+    rescue Stretchysearch::Transport::Transport::Errors::NotFound => ex
       raise ex unless ex.message.to_s =~ /IndexMissingException/
       raise ::Suspenders::Errors::IndexNotFound.new("Index not found")
     end
@@ -134,7 +134,7 @@ module Suspenders
 
     def find(id, options = {})
       find!(id, options)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+    rescue Stretchysearch::Transport::Transport::Errors::NotFound
       nil
     end
 
@@ -145,7 +145,7 @@ module Suspenders
 
     def read_result(id, options = {})
       read_result!(id, options)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+    rescue Stretchysearch::Transport::Transport::Errors::NotFound
       nil
     end
 
@@ -156,7 +156,7 @@ module Suspenders
 
     def read(id, options = {})
       read!(id, options)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+    rescue Stretchysearch::Transport::Transport::Errors::NotFound
       nil
     end
 
@@ -175,7 +175,7 @@ module Suspenders
 
     def destroy(id, options = {})
       destroy!(id, options)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+    rescue Stretchysearch::Transport::Transport::Errors::NotFound
       nil
     end
 

@@ -7,7 +7,7 @@ describe Suspenders::Index do
 
   it "grabs connection data from the index's settings" do
     expect(client).to be_a(::Suspenders::Client)
-    expect(client.connection).to be_a(::Elasticsearch::Transport::Client)
+    expect(client.connection).to be_a(::Stretchysearch::Transport::Client)
     expect(client.instance_variable_get('@servers')).to eql({"server1"=>{"host"=>"127.0.0.1", "port"=>9200, "protocol"=>"http"}})
   end
 

@@ -27,7 +27,7 @@ module Suspenders
     end
 
     def connection
-      @connection ||= Elasticsearch::Client.new config_hash
+      @connection ||= Stretchysearch::Client.new config_hash
     end
 
     def config_hash

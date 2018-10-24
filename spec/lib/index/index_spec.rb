@@ -12,7 +12,7 @@ describe Suspenders::Index do
 
   it "creates the index" do
     index.delete!
-    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+    expect{ index.refresh }.to raise_error(Stretchysearch::Transport::Transport::Errors::NotFound)
 
     index.create!
     expect{ index.refresh }.to_not raise_error
@@ -20,7 +20,7 @@ describe Suspenders::Index do
 
   it "blows up when trying to create an existing index" do
     index.delete!
-    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+    expect{ index.refresh }.to raise_error(Stretchysearch::Transport::Transport::Errors::NotFound)
 
     expect{ index.create! }.to_not raise_error
     expect{ index.create! }.to raise_error(::Suspenders::Errors::IndexExists, "Index already exists")
@@ -28,7 +28,7 @@ describe Suspenders::Index do
 
   it "doesn't blow up on creation when using the non-bang method" do
     index.delete!
-    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+    expect{ index.refresh }.to raise_error(Stretchysearch::Transport::Transport::Errors::NotFound)
 
     expect{ index.create! }.to_not raise_error
     expect{ index.create }.to_not raise_error
@@ -36,7 +36,7 @@ describe Suspenders::Index do
 
   it "deletes the index" do
     index.delete!
-    expect{ index.refresh }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+    expect{ index.refresh }.to raise_error(Stretchysearch::Transport::Transport::Errors::NotFound)
     index.create!
   end
 
@@ -128,7 +128,7 @@ describe Suspenders::Index do
     it "blows up on 404 when using the bang method" do
       expect {
         index.read!('__not_here')
-      }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+      }.to raise_error(Stretchysearch::Transport::Transport::Errors::NotFound)
     end
 
     it "doesn't mix data between two indexes" do

@@ -20,7 +20,7 @@ describe Suspenders::Configuration do
 
   it "proxies the client" do
     expect(::Suspenders.config.client).to be_a ::Suspenders::Client
-    expect(::Suspenders.config.client.connection).to be_a ::Elasticsearch::Transport::Client
+    expect(::Suspenders.config.client.connection).to be_a ::Stretchysearch::Transport::Client
     expect(::Suspenders.client).to be_a ::Suspenders::Client
   end
 
