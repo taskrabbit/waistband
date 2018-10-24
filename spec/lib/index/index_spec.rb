@@ -69,10 +69,12 @@ describe Suspenders::Index do
     expect(response['acknowledged']).to be true
   end
 
+
+  # TODO set back to 9200
   it "correctly sets hosts" do
     expect(index.client.send(:hosts)).to eql([
-      {"host" => "localhost", "port" => 9200, "protocol" => "http"},
-      {"host" => "127.0.0.1", "port" => 9200, "protocol" => "http"}
+      {"host" => "localhost", "port" => 9500, "protocol" => "http"},
+      {"host" => "127.0.0.1", "port" => 9500, "protocol" => "http"}
     ])
   end
 

@@ -6,11 +6,11 @@ development: &DEV
   servers:
     server1:
       host: localhost
-      port: 9200
+      port: 9500
       protocol: http
     server2:
       host: 127.0.0.1
-      port: 9200
+      port: 9500
       protocol: http
 
 test:

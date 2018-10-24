@@ -54,9 +54,10 @@ describe Suspenders::Configuration do
       expect(hosts).to be_an Array
       expect(hosts.size).to eql 2
 
+      # TODO set back to 9200
       hosts.each_with_index do |server, i|
         expect(server['host']).to match(/127\.0\.0\.1|localhost/)
-        expect(server['port']).to eql 9200
+        expect(server['port']).to eql 9500
         expect(server['protocol']).to eql 'http'
       end
     end
