@@ -30,11 +30,11 @@ $ gem install waistband
 Waistband relies on [elasticsearch-ruby](https://github.com/elastic/elasticsearch-ruby), which
 mirrors its versioning with Elasticsearch.
 
-    | Gem Version   |   | Elasticsearch |
-    |:-------------:|:-:| :-----------: |
-    | 0.x           | → | 1.x           |
-    | 6.x           | → | 6.x           |
-    | master        | → | 6.x           |
+   | Gem Version   |   | Elasticsearch |
+   |:-------------:|:-:| :-----------: |
+   | 0.x           | → | 1.x           |
+   | 6.x           | → | 6.x           |
+   | master        | → | 6.x           |
 
 ## Configuration
 
