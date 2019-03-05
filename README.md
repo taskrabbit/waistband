@@ -26,6 +26,16 @@ Or install it yourself as:
 
 $ gem install waistband
 
+## Compatibility
+Waistband relies on [elasticsearch-ruby](https://github.com/elastic/elasticsearch-ruby), which
+mirrors its versioning with Elasticsearch.
+
+    | Gem Version   |   | Elasticsearch |
+    |:-------------:|:-:| :-----------: |
+    | 0.x           | → | 1.x           |
+    | 6.x           | → | 6.x           |
+    | master        | → | 6.x           |
+
 ## Configuration
 
 Configuration is generally pretty simple.  First, create a folder where you'll store your Waistband configuration docs, usually under `#{APP_DIR}/config/waistband/`, you can also just throw it under `#{APP_DIR}/config/` if you want.  The baseline config contains something like this:

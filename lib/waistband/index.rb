@@ -81,7 +81,7 @@ module Waistband
 
       client.indices.create index: config_name, body: config.except('name', 'permissions', 'stringify', 'log_level')
     rescue Elasticsearch::Transport::Transport::Errors::BadRequest => ex
-      raise ex unless ex.message.to_s =~ /IndexAlreadyExistsException/
+      raise ex unless ex.message.to_s =~ /already_exists_exception/
       raise ::Waistband::Errors::IndexExists.new("Index already exists")
     end
 
@@ -96,7 +96,7 @@ module Waistband
 
       client.indices.delete index: config_name
     rescue Elasticsearch::Transport::Transport::Errors::NotFound => ex
-      raise ex unless ex.message.to_s =~ /IndexMissingException/
+      raise ex unless ex.message.to_s =~ /index_not_found_exception/
       raise ::Waistband::Errors::IndexNotFound.new("Index not found")
     end
 
