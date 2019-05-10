@@ -356,4 +356,20 @@ describe Waistband::Index do
 
   end
 
+  describe '#delete_by_query' do
+    let(:delete_query) { { query: { match_all: {} } } }
+    let(:result) { index.delete_by_query(delete_query) }
+
+    before do
+      index.save('__test_write1',  {'data' => 'index_1'})
+      index.save('__test_write2',  {'data' => 'index_2'})
+      index.refresh
+    end
+
+    it "returns a DeleteByQueryResult object with expected properties" do
+      expect(result).to be_a Waistband::DeleteByQueryResult
+      expect(result.deleted).to eq(2)
+      expect(result.full_response).to be_a Hash
+    end
+  end
 end
