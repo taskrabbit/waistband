@@ -207,6 +207,10 @@ module Waistband
       ::Waistband::SearchResults.new(search_hash, page: page, page_size: page_size)
     end
 
+    def delete_by_query(query)
+      ::Waistband::DeleteByQueryResult.new(client.delete_by_query(index: config_name, body: query))
+    end
+
     def alias(alias_name)
       alias_name = full_alias_name alias_name
       client.indices.put_alias(
