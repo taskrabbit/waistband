@@ -55,7 +55,7 @@ module Waistband
 
       def hosts
         @hosts ||= @servers.map do |server_name, config|
-          config
+          config.symbolize_keys
         end
       end
 
