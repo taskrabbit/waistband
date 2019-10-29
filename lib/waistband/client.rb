@@ -53,11 +53,10 @@ module Waistband
 
     private
 
-      def hosts
-        @hosts ||= @servers.map do |server_name, config|
-          config
-        end
+    def hosts
+      @hosts ||= @servers.map do |server_name, config|
+        config.each_with_object({}) { |(key, value), obj| obj[key.to_sym] = value }
       end
-
+    end
   end
 end

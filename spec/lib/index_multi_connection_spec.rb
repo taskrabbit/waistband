@@ -8,11 +8,13 @@ describe Waistband::Index do
   it "grabs connection data from the index's settings" do
     expect(client).to be_a(::Waistband::Client)
     expect(client.connection).to be_a(::Elasticsearch::Transport::Client)
-    expect(client.instance_variable_get('@servers')).to eql({"server1"=>{"host"=>"127.0.0.1", "port"=>9200, "protocol"=>"http"}})
+    expect(client.instance_variable_get('@servers'))
+      .to eql({"server1"=>{"host"=>"127.0.0.1", "port"=>9200, "protocol"=>"http"}})
   end
 
   it "correctly sets hosts" do
-    expect(client.send(:config_hash)[:hosts]).to eql([{"host"=>"127.0.0.1", "port"=>9200, "protocol"=>"http"}])
+    expect(client.send(:config_hash)[:hosts])
+      .to eql([{host: "127.0.0.1", port: 9200, protocol: "http"}])
   end
 
   it "exposes servers correctly" do
@@ -22,7 +24,7 @@ describe Waistband::Index do
   it "works" do
     index.delete
     index.create
-    saved = index.save('testing123', {ok: 'yeah'})
+    index.save('testing123', {ok: 'yeah'})
     index.refresh
     data = index.read('testing123')
     expect(data['_source']['ok']).to eql 'yeah'

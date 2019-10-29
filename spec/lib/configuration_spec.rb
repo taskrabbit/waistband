@@ -48,6 +48,10 @@ describe Waistband::Configuration do
   end
 
   describe 'hosts' do
+    it "formats host Hashes to use Symbolized keys" do
+      keys = config.client.send(:hosts).first.keys
+      expect(keys.first).to be_a(Symbol)
+    end
 
     it "returns array of all available servers' configs" do
       hosts = config.client.send(:hosts)
@@ -55,9 +59,9 @@ describe Waistband::Configuration do
       expect(hosts.size).to eql 2
 
       hosts.each_with_index do |server, i|
-        expect(server['host']).to match(/127\.0\.0\.1|localhost/)
-        expect(server['port']).to eql 9200
-        expect(server['protocol']).to eql 'http'
+        expect(server[:host]).to match(/127\.0\.0\.1|localhost/)
+        expect(server[:port]).to eql 9200
+        expect(server[:protocol]).to eql 'http'
       end
     end
 
