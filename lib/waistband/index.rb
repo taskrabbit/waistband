@@ -162,7 +162,7 @@ module Waistband
 
     def update(*args)
       update!(*args)
-    rescue ::Waistband::Errors::UnableToUpdate => ex
+    rescue ::Waistband::Errors::UnableToUpdate
       false
     end
 
