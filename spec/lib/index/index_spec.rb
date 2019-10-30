@@ -104,7 +104,7 @@ describe Waistband::Index do
       })
     end
 
-    it "partially updates data" do
+    it "can partially updates documents" do
       expect(index.save('__test_write', {'ok' => 'yeah', 'not_ok' => 'yeah'})).to be_present
       expect(index.update('__test_write', {'not_ok' => 'no'})).to be_present
       expect(index.read('__test_write')).to eql({
