@@ -15,6 +15,7 @@ module Waistband
     class IndexNotFound < StandardError; end
     class NoSearchHits < StandardError; end
     class UnableToSave < StandardError; end
+    class UnableToUpdate < StandardError; end
 
   end
 end

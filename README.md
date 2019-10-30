@@ -185,6 +185,11 @@ index.find('my_data') # => {"important"=>true, "valuable"=>{"always"=>true}}
 # reading with all the internal data
 index.read('my_data') # => {'_id' => '123123', '_source' => {"important"=>true, "valuable"=>{"always"=>true}}, ...}
 
+# partial updating
+index.save('my_data', {'important' => true, 'valuable' => {'always' => true}}) # => true
+index.update('my_data', {'important' => false }) # => true
+index.read('my_data') # => {'_id' => '123123', '_source' => {"important"=>false, "valuable"=>{"always"=>true}}, ...}
+
 # deleting
 index.destroy('my_data') # => "{\"ok\":true,\"found\":true,\"_index\":\"search\",\"_type\":\"search\",\"_id\":\"my_data\",\"_version\":2}"
 
