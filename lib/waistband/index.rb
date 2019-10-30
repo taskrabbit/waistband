@@ -132,6 +132,40 @@ module Waistband
       false
     end
 
+    def update!(*args)
+      check_permission!('write')
+
+      body_hash = args.extract_options!
+      id = args.first
+      _type = body_hash.delete(:_type) || body_hash.delete('_type') || default_type_name
+
+      # map everything to strings if need be
+      body_hash = stringify_all(body_hash) if @stringify
+
+      verify_body_size(config_name, _type, id, body_hash)
+
+      body_hash = { doc: body_hash }
+
+      saved = client.update(
+        index: config_name,
+        type: _type,
+        id: id,
+        body: body_hash
+      )
+
+      unless saved['_id'].present?
+        raise ::Waistband::Errors::UnableToUpdate.new("Unable to update to index: #{config_name}, type: #{_type}, id: #{id}: result: #{saved}")
+      end
+
+      saved
+    end
+
+    def update(*args)
+      update!(*args)
+    rescue ::Waistband::Errors::UnableToUpdate => ex
+      false
+    end
+
     def find(id, options = {})
       find!(id, options)
     rescue Elasticsearch::Transport::Transport::Errors::NotFound

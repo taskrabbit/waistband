@@ -92,7 +92,6 @@ describe Waistband::Index do
   end
 
   describe "storing" do
-
     it "stores data" do
       expect(index.save('__test_write', {'ok' => 'yeah'})).to be_present
       expect(index.read('__test_write')).to eql({
@@ -101,6 +100,19 @@ describe Waistband::Index do
         '_source' => {'ok' => 'yeah'},
         '_type' => 'event',
         '_version' => 1,
+        'found' => true
+      })
+    end
+
+    it "partially updates data" do
+      expect(index.save('__test_write', {'ok' => 'yeah', 'not_ok' => 'yeah'})).to be_present
+      expect(index.update('__test_write', {'not_ok' => 'no'})).to be_present
+      expect(index.read('__test_write')).to eql({
+        '_id' => '__test_write',
+        '_index' => 'events_test',
+        '_source' => {'ok' => 'yeah', 'not_ok' => 'no'},
+        '_type' => 'event',
+        '_version' => 2,
         'found' => true
       })
     end
