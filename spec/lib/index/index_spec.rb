@@ -301,6 +301,26 @@ describe Waistband::Index do
 
   end
 
+  describe 'force_name' do
+
+    let(:forced_name_index) { Waistband::Index.new 'events_no_name', force_name: 'new_forced_name' }
+
+    around(:each) do |example|
+      forced_name_index.delete
+      example.run
+      forced_name_index.delete
+    end
+
+    it "creates the index" do
+      expect(forced_name_index.exists?).to be_falsey
+
+      forced_name_index.create!
+      expect(forced_name_index.exists?).to be_truthy
+      expect(forced_name_index.send(:config_name)).to eql 'new_forced_name'
+    end
+
+  end
+
   describe '#base_config_name' do
 
     it "gets a default name that makes sense for the index when not defined" do
@@ -346,6 +366,40 @@ describe Waistband::Index do
         expect(index.instance_variable_get('@index_name')).to eql 'events'
       end
 
+    end
+
+    it 'returns the name of the parent index' do
+      index.alias('events_alias')
+      alias_ref = Waistband::Index.new 'events', force_name: index.send(:full_alias_name, 'events_alias')
+
+      parent_index_names = alias_ref.parent_index_names
+      expect(parent_index_names.length).to eq(1)
+      expect(parent_index_names[0]).to eq(index.send(:config_name))
+    end
+
+    it 'can return a reference to the parent index' do
+      index.alias('events_alias')
+      alias_ref = Waistband::Index.new 'events', force_name: index.send(:full_alias_name, 'events_alias')
+      parent_index = alias_ref.get_first_parent_index_reference
+
+      expect(parent_index.exists?).to be_truthy
+      expect(parent_index.send(:config_name)).to eq(index.send(:config_name))
+    end
+
+    it "can save read and update documents from an alias" do
+      index.alias('events_alias')
+      alias_ref = Waistband::Index.new 'events', force_name: index.send(:full_alias_name, 'events_alias')
+
+      expect(alias_ref.save('__test_write', {'ok' => 'yeah', 'not_ok' => 'yeah'})).to be_present
+      expect(alias_ref.update('__test_write', {'not_ok' => 'no'})).to be_present
+      expect(alias_ref.read('__test_write')).to eql({
+        '_id' => '__test_write',
+        '_index' => 'events_test',
+        '_source' => {'ok' => 'yeah', 'not_ok' => 'no'},
+        '_type' => 'event',
+        '_version' => 2,
+        'found' => true
+      })
     end
 
   end
