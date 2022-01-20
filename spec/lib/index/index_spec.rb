@@ -402,7 +402,7 @@ describe Waistband::Index do
       })
     end
 
-    it "update_mappings from an alias" do
+    it "updates mappings from an alias" do
       index = Waistband::Index.new 'geo', force_name: 'geo_index'
       index.delete
       index.create!

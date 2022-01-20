@@ -265,14 +265,6 @@ module Waistband
       )
     end
 
-    def delete_alias(alias_name)
-      alias_name = full_alias_name alias_name
-      client.indices.delete_alias(
-        index: config_name,
-        name: alias_name
-      )
-    end
-
     def parent_index_names
       client.indices.get_alias(name: config_name).map { |k, v| k }
     rescue Elasticsearch::Transport::Transport::Errors::NotFound
