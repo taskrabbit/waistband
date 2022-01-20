@@ -402,6 +402,24 @@ describe Waistband::Index do
       })
     end
 
+    it "update_mappings from an alias" do
+      index = Waistband::Index.new 'geo', force_name: 'geo_index'
+      index.delete
+      index.create!
+      index.alias('geo_index_alias')
+
+      alias_ref = Waistband::Index.new 'geo', force_name: 'geo_index_alias'
+
+      responses = alias_ref.update_all_mappings
+      index.delete
+
+      expect(responses).to be_an Array
+
+      response = responses.first
+      expect(response['acknowledged']).to be_truthy
+      expect(response['_type']).to eq('geo')
+    end
+
   end
 
   describe 'logging' do
