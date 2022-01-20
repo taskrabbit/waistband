@@ -8,6 +8,7 @@ require 'waistband'
 require 'rspec'
 require 'timecop'
 require 'active_support/core_ext/integer/time'
+require 'json'
 
 unless ENV['ON_TRAVIS']
   require 'byebug'

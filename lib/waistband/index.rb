@@ -29,6 +29,10 @@ module Waistband
         @subs = @subs.flatten     if @subs.is_a?(Array)
       end
 
+      if options['force_name'].present?
+        @force_name = options['force_name']
+      end
+
     end
 
     def exists?
@@ -261,6 +265,18 @@ module Waistband
       )
     end
 
+    def parent_index_names
+      client.indices.get_alias(name: config_name).map { |k, v| k }
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      nil
+    end
+
+    def get_first_parent_index_reference
+      index_name = parent_index_names&.first
+      return nil if index_name.nil?
+      self.class.new(@index_name, force_name: index_name)
+    end
+
     def config
       ::Waistband.config.index @index_name
     end
@@ -345,7 +361,7 @@ module Waistband
       end
 
       def custom_name?
-        !!config['name']
+        !!config['name'] || !!(defined? @force_name)
       end
 
       def stringify_all(data)
@@ -381,6 +397,7 @@ module Waistband
       end
 
       def config_name
+        return @force_name if defined? @force_name
         @subs ? "#{base_config_name}__#{@subs.join('_')}" : base_config_name
       end
 
