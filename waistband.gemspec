@@ -18,10 +18,10 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'activesupport'
+  spec.add_dependency 'activesupport', '~> 6.0.0'
   spec.add_dependency 'elasticsearch',  '~> 6.0'
-  spec.add_dependency 'json'
+  spec.add_dependency 'json', '~> 2.6.2'
 
   spec.add_development_dependency "bundler", "~> 2.1"
-  spec.add_development_dependency "rake",    "~> 10.3"
+  spec.add_development_dependency "rake",    "~> 13.0"
 end
