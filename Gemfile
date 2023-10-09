@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rspec', '~> 3.1.0'
-gem 'timecop', '~> 0.7.1'
+gem 'timecop'
 
 unless ENV['ON_TRAVIS']
   gem 'byebug'
