@@ -63,9 +63,9 @@ module Waistband
 
       def load_yml_with_erb(file)
         if defined?(ERB)
-          YAML.safe_load(ERB.new(File.read(file)).result, aliases: true)
+          YAML.safe_load(ERB.new(File.read(file)).result, aliases: true, permitted_classes: [Symbol])
         else
-          YAML.safe_load_file(file, aliases: true)
+          YAML.safe_load_file(file, aliases: true, permitted_classes: [Symbol])
         end
       end
 
