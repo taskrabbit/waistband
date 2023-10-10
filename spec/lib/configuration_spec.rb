@@ -25,11 +25,11 @@ describe Waistband::Configuration do
   end
 
   it "permits passing in an adapter to use to the client" do
-    original_config = YAML.load_file(File.join(::Waistband.config.config_dir, 'waistband.yml'))['test']
+    original_config = YAML.safe_load_file(File.join(::Waistband.config.config_dir, 'waistband.yml'), aliases: true, permitted_classes: [Symbol])['test']
 
     expect(::Waistband.config.instance_variable_get('@adapter')).to be_nil
 
-    expect(YAML).to receive(:load).and_return({'test' => original_config.merge({'adapter' => :net_http})}).at_least(:once)
+    expect(YAML).to receive(:safe_load).and_return({'test' => original_config.merge({'adapter' => :net_http})}).at_least(:once)
     ::Waistband.config.setup
     expect(::Waistband.config.instance_variable_get('@adapter')).to eql :net_http
     expect(::Waistband.client.transport.options[:adapter]).to eql :net_http

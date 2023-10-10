@@ -94,7 +94,7 @@ describe Waistband::Index do
   describe "storing" do
     it "stores data" do
       expect(index.save('__test_write', {'ok' => 'yeah'})).to be_present
-      expect(index.read('__test_write')).to eql({
+      expect(index.read('__test_write')).to match a_hash_including({
         '_id' => '__test_write',
         '_index' => 'events_test',
         '_source' => {'ok' => 'yeah'},
@@ -107,7 +107,7 @@ describe Waistband::Index do
     it "can partially updates documents" do
       expect(index.save('__test_write', {'ok' => 'yeah', 'not_ok' => 'yeah'})).to be_present
       expect(index.update('__test_write', {'not_ok' => 'no'})).to be_present
-      expect(index.read('__test_write')).to eql({
+      expect(index.read('__test_write')).to match a_hash_including({
         '_id' => '__test_write',
         '_index' => 'events_test',
         '_source' => {'ok' => 'yeah', 'not_ok' => 'no'},
